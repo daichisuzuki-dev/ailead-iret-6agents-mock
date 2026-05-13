@@ -426,8 +426,6 @@
   <ul class="sidebar-nav">
     <li class="active" onclick="show('home')"><span class="num">⌂</span>営業組織OS ダッシュボード<span class="kbd">0</span></li>
     <li onclick="show('roi')"><span class="num">¥</span>ROIシミュレーター<span class="kbd">R</span></li>
-    <li onclick="show('story')"><span class="num">⏱</span>営業1人の1日<span class="kbd">S</span></li>
-    <li onclick="show('valuechain')"><span class="num">⛓</span>バリューチェーン<span class="kbd">V</span></li>
   </ul>
 
   <div class="sidebar-section-label">AIエージェント</div>
@@ -440,9 +438,8 @@
     <li onclick="show('agent6')"><span class="num">⑥</span>ナーチャリング自動化<span class="kbd">6</span></li>
   </ul>
 
-  <div class="sidebar-section-label">参考・設定</div>
+  <div class="sidebar-section-label">設定</div>
   <ul class="sidebar-nav">
-    <li onclick="show('cases')"><span class="num">📁</span>他社実装事例<span class="kbd">C</span></li>
     <li onclick="show('settings')"><span class="num">⚙</span>設定<span class="kbd">,</span></li>
   </ul>
 
@@ -694,246 +691,6 @@
           <tr><td>強気</td><td>2.0倍</td><td>+216億</td><td>+648億</td><td>営業組織OS完全展開時</td></tr>
         </tbody>
       </table>
-    </div>
-  </section>
-
-  <!-- ============================== -->
-  <!-- ⏱ 営業1人の1日ストーリー -->
-  <!-- ============================== -->
-  <section class="page" id="story">
-    <div class="page-header">
-      <div class="page-badge" style="background:#e0f2fe;color:#0284c7;">STORYBOARD</div>
-      <h1 class="page-title">営業1人の1日 — AIエージェントとの共同作業</h1>
-      <p class="page-sub">朝出社から夕方の振り返りまで。6つのAIエージェントがどのように連携して営業活動を支えるかを時系列で示します</p>
-    </div>
-
-    <!-- Timeline -->
-    <div class="section" style="position:relative;">
-      <div style="position:absolute;left:46px;top:60px;bottom:30px;width:2px;background:linear-gradient(180deg,#2563eb,#06b6d4,#16a34a,#f59e0b,#8b5cf6,#ec4899);"></div>
-
-      <div style="display:flex;gap:20px;margin-bottom:24px;align-items:flex-start;">
-        <div style="width:60px;text-align:right;flex-shrink:0;"><div style="font-weight:700;color:var(--text-strong);">8:30</div><div style="font-size:10px;color:var(--text-muted);">出社</div></div>
-        <div style="width:30px;height:30px;background:#2563eb;border-radius:50%;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;flex-shrink:0;z-index:1;">①</div>
-        <div style="flex:1;background:var(--surface-2);border-radius:10px;padding:16px 18px;">
-          <div style="font-weight:700;color:var(--text-strong);margin-bottom:6px;">朝の確認 — 今日の優先顧客がAIから届く</div>
-          <div style="font-size:13px;color:var(--text);line-height:1.7;">PCを開くと、AIエージェント①が選んだ <strong>本日アプローチすべき5社のリスト</strong> が届いています。マッチスコア・直近の動き・推奨アサインまで整理済み。「考える時間」がいきなり「動く時間」に。</div>
-        </div>
-      </div>
-
-      <div style="display:flex;gap:20px;margin-bottom:24px;align-items:flex-start;">
-        <div style="width:60px;text-align:right;flex-shrink:0;"><div style="font-weight:700;color:var(--text-strong);">9:00</div><div style="font-size:10px;color:var(--text-muted);">朝MTG後</div></div>
-        <div style="width:30px;height:30px;background:#16a34a;border-radius:50%;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;flex-shrink:0;z-index:1;">②</div>
-        <div style="flex:1;background:var(--surface-2);border-radius:10px;padding:16px 18px;">
-          <div style="font-weight:700;color:var(--text-strong);margin-bottom:6px;">14時の商談準備 — AIが30分で完了</div>
-          <div style="font-size:13px;color:var(--text);line-height:1.7;">午後の <strong>S社HD様初回商談</strong>。事前準備エージェント②が、業績資料・IR・公開情報・過去の商談データを横断分析。仮説3案+質問リスト5問+関連事例3件のシートが手元に。<em style="color:var(--primary);">2時間 → 30分に。</em></div>
-        </div>
-      </div>
-
-      <div style="display:flex;gap:20px;margin-bottom:24px;align-items:flex-start;">
-        <div style="width:60px;text-align:right;flex-shrink:0;"><div style="font-weight:700;color:var(--text-strong);">10:30</div><div style="font-size:10px;color:var(--text-muted);">マネージャ承認</div></div>
-        <div style="width:30px;height:30px;background:#f59e0b;border-radius:50%;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;flex-shrink:0;z-index:1;">③</div>
-        <div style="flex:1;background:var(--surface-2);border-radius:10px;padding:16px 18px;">
-          <div style="font-weight:700;color:var(--text-strong);margin-bottom:6px;">割り振り受領 — マネージャから新規案件3件</div>
-          <div style="font-size:13px;color:var(--text);line-height:1.7;">マネージャはAIエージェント③が提示した推薦アサインを<strong>ワンクリックで承認</strong>。「これまでの実績 × 現在の稼働率 × 業界知見」のマッチング根拠付き。納得感のあるアサインが届く。</div>
-        </div>
-      </div>
-
-      <div style="display:flex;gap:20px;margin-bottom:24px;align-items:flex-start;">
-        <div style="width:60px;text-align:right;flex-shrink:0;"><div style="font-weight:700;color:var(--text-strong);">14:00</div><div style="font-size:10px;color:var(--text-muted);">商談中</div></div>
-        <div style="width:30px;height:30px;background:#8b5cf6;border-radius:50%;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;flex-shrink:0;z-index:1;">④</div>
-        <div style="flex:1;background:var(--surface-2);border-radius:10px;padding:16px 18px;">
-          <div style="font-weight:700;color:var(--text-strong);margin-bottom:6px;">S社HD様 商談 — AIアシストがリアルタイムで動く</div>
-          <div style="font-size:13px;color:var(--text);line-height:1.7;">CIO島田様との商談中、画面横にエージェント④。「関連する弊社事例」「想定される次の質問」「次の一手」をその場で表示。<em style="color:var(--primary);">「持ち帰り」が消える</em>。途中で運用代行への関心を検知 → AIが資料を画面共有提案。</div>
-        </div>
-      </div>
-
-      <div style="display:flex;gap:20px;margin-bottom:24px;align-items:flex-start;">
-        <div style="width:60px;text-align:right;flex-shrink:0;"><div style="font-weight:700;color:var(--text-strong);">16:00</div><div style="font-size:10px;color:var(--text-muted);">商談後 振り返り</div></div>
-        <div style="width:30px;height:30px;background:#06b6d4;border-radius:50%;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;flex-shrink:0;z-index:1;">⑤</div>
-        <div style="flex:1;background:var(--surface-2);border-radius:10px;padding:16px 18px;">
-          <div style="font-weight:700;color:var(--text-strong);margin-bottom:6px;">関係者の温度感が自動更新</div>
-          <div style="font-size:13px;color:var(--text);line-height:1.7;">商談データが⑤エージェントへ自動連携。<strong>島田CIO様の温度は「中」→「高」へ昇格</strong>。同時に未接触のCFO中田様に向けて、小松様(現場部長)経由の紹介依頼テンプレが自動生成される。</div>
-        </div>
-      </div>
-
-      <div style="display:flex;gap:20px;align-items:flex-start;">
-        <div style="width:60px;text-align:right;flex-shrink:0;"><div style="font-weight:700;color:var(--text-strong);">17:30</div><div style="font-size:10px;color:var(--text-muted);">退社前</div></div>
-        <div style="width:30px;height:30px;background:#ec4899;border-radius:50%;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;flex-shrink:0;z-index:1;">⑥</div>
-        <div style="flex:1;background:var(--surface-2);border-radius:10px;padding:16px 18px;">
-          <div style="font-weight:700;color:var(--text-strong);margin-bottom:6px;">明日の準備は、AIが夜のうちに</div>
-          <div style="font-size:13px;color:var(--text);line-height:1.7;">退社後、AIエージェント⑥が4,000件の眠りリードを再評価。温度が上がったリードに対して個別メッセージを自動生成、明朝には<strong>承認待ちのメール3通</strong>がトレイに。判子を押すだけで配信。</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="section">
-      <div class="section-title"><span class="ai-tag">AI</span>1日のインパクト</div>
-      <div class="three-col">
-        <div class="card" style="text-align:center;">
-          <div class="card-label">捻出された時間</div>
-          <div class="card-value" style="color:#16a34a;">+3<span class="unit">時間/日</span></div>
-        </div>
-        <div class="card" style="text-align:center;">
-          <div class="card-label">使えた打ち手の幅</div>
-          <div class="card-value" style="color:#2563eb;">×3.2<span class="unit">倍</span></div>
-        </div>
-        <div class="card" style="text-align:center;">
-          <div class="card-label">商談の手応え</div>
-          <div class="card-value" style="color:#8b5cf6;">+42<span class="unit">%</span></div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ============================== -->
-  <!-- ⛓ バリューチェーン -->
-  <!-- ============================== -->
-  <section class="page" id="valuechain">
-    <div class="page-header">
-      <div class="page-badge" style="background:#f3e8ff;color:#7c3aed;">VALUE CHAIN MAP</div>
-      <h1 class="page-title">営業バリューチェーンと6つのAIエージェント</h1>
-      <p class="page-sub">営業活動の流れ(リード獲得→商談→受注→継続)のどこで、どのエージェントが寄り添うかを可視化します</p>
-    </div>
-
-    <!-- Value chain visualization -->
-    <div class="section">
-      <div class="section-title">営業の流れ × AIエージェント対応マップ</div>
-
-      <!-- Top: value chain stages -->
-      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:14px;">
-        <div style="background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;padding:14px;border-radius:10px;text-align:center;font-weight:700;font-size:13px;">1. リード獲得</div>
-        <div style="background:linear-gradient(135deg,#16a34a,#15803d);color:#fff;padding:14px;border-radius:10px;text-align:center;font-weight:700;font-size:13px;">2. 事前準備</div>
-        <div style="background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;padding:14px;border-radius:10px;text-align:center;font-weight:700;font-size:13px;">3. 商談・受注</div>
-        <div style="background:linear-gradient(135deg,#06b6d4,#0891b2);color:#fff;padding:14px;border-radius:10px;text-align:center;font-weight:700;font-size:13px;">4. 振り返り・型化</div>
-        <div style="background:linear-gradient(135deg,#ec4899,#db2777);color:#fff;padding:14px;border-radius:10px;text-align:center;font-weight:700;font-size:13px;">5. 継続・育成</div>
-      </div>
-
-      <!-- Arrows -->
-      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:14px;">
-        <div style="text-align:center;font-size:18px;color:var(--text-muted);">↓</div>
-        <div style="text-align:center;font-size:18px;color:var(--text-muted);">↓</div>
-        <div style="text-align:center;font-size:18px;color:var(--text-muted);">↓</div>
-        <div style="text-align:center;font-size:18px;color:var(--text-muted);">↓</div>
-        <div style="text-align:center;font-size:18px;color:var(--text-muted);">↓</div>
-      </div>
-
-      <!-- Agent mappings -->
-      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;">
-        <div class="clickable" onclick="show('agent1')" style="background:var(--surface-2);border:2px solid #2563eb;border-radius:10px;padding:14px;">
-          <div style="font-weight:700;color:var(--text-strong);font-size:12px;margin-bottom:6px;">① 顧客マッチング</div>
-          <div style="font-size:11px;color:var(--text-soft);line-height:1.5;">攻めるべき顧客をAIが優先度順に提示</div>
-        </div>
-        <div class="clickable" onclick="show('agent2')" style="background:var(--surface-2);border:2px solid #16a34a;border-radius:10px;padding:14px;">
-          <div style="font-weight:700;color:var(--text-strong);font-size:12px;margin-bottom:6px;">② 事前準備</div>
-          <div style="font-size:11px;color:var(--text-soft);line-height:1.5;">仮説・質問・事例を自動生成</div>
-        </div>
-        <div class="clickable" onclick="show('agent4')" style="background:var(--surface-2);border:2px solid #8b5cf6;border-radius:10px;padding:14px;">
-          <div style="font-weight:700;color:var(--text-strong);font-size:12px;margin-bottom:6px;">④ リアルタイム</div>
-          <div style="font-size:11px;color:var(--text-soft);line-height:1.5;">商談中AIがその場でサポート</div>
-        </div>
-        <div class="clickable" onclick="show('agent5')" style="background:var(--surface-2);border:2px solid #06b6d4;border-radius:10px;padding:14px;">
-          <div style="font-weight:700;color:var(--text-strong);font-size:12px;margin-bottom:6px;">⑤ ステークホルダー</div>
-          <div style="font-size:11px;color:var(--text-soft);line-height:1.5;">関係者の温度感を自動可視化</div>
-        </div>
-        <div class="clickable" onclick="show('agent6')" style="background:var(--surface-2);border:2px solid #ec4899;border-radius:10px;padding:14px;">
-          <div style="font-weight:700;color:var(--text-strong);font-size:12px;margin-bottom:6px;">⑥ ナーチャリング</div>
-          <div style="font-size:11px;color:var(--text-soft);line-height:1.5;">眠りリードを自動掘り起こし</div>
-        </div>
-      </div>
-
-      <!-- Manager view -->
-      <div style="margin-top:24px;padding:18px;background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;border-radius:10px;">
-        <div style="font-weight:700;font-size:13px;margin-bottom:6px;">マネージャー横串視点: ③ 案件割り振り</div>
-        <div style="font-size:12px;line-height:1.6;">①〜⑥の活動全体を見ながら、スキル × 稼働率 × 案件特性で最適配分。チーム全体が回るための司令塔。</div>
-      </div>
-    </div>
-
-    <!-- Coverage matrix -->
-    <div class="section">
-      <div class="section-title">課題 × エージェントのカバレッジ</div>
-      <table>
-        <thead><tr><th>営業の課題</th><th>主に解くエージェント</th><th>補助で関わるエージェント</th></tr></thead>
-        <tbody>
-          <tr><td>大型案件の新規開拓ナレッジ不足</td><td><span class="pill pill-blue">① 顧客マッチング</span></td><td>② 事前準備</td></tr>
-          <tr><td>商談準備に2時間かかる</td><td><span class="pill pill-green">② 事前準備</span></td><td>① マッチ理由を引き継ぎ</td></tr>
-          <tr><td>営業スキルのばらつき</td><td><span class="pill pill-orange">④ リアルタイム</span></td><td>② 事前準備, ③ 割り振り</td></tr>
-          <tr><td>商談中に詰まる・持ち帰る</td><td><span class="pill" style="background:#f3e8ff;color:#7c3aed;">④ リアルタイム</span></td><td>② 事前準備</td></tr>
-          <tr><td>キーマン・関係者が把握できない</td><td><span class="pill" style="background:#e0f2fe;color:#0284c7;">⑤ ステークホルダー</span></td><td>④ 商談データ連携</td></tr>
-          <tr><td>4,000件の眠りリードが死んでいる</td><td><span class="pill" style="background:#fce7f3;color:#be185d;">⑥ ナーチャリング</span></td><td>① マッチ温度UP</td></tr>
-          <tr><td>マネージャーが状況を把握できない</td><td><span class="pill pill-yellow">③ 案件割り振り</span></td><td>全エージェント横串</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </section>
-
-  <!-- ============================== -->
-  <!-- 📁 他社実装事例 -->
-  <!-- ============================== -->
-  <section class="page" id="cases">
-    <div class="page-header">
-      <div class="page-badge" style="background:#f1f5f9;color:#475569;">CASE STUDIES</div>
-      <h1 class="page-title">他社での実装事例</h1>
-      <p class="page-sub">aileadのAIエージェントが、他社でどのような形で実装され、どのような効果を出しているかをご紹介します</p>
-    </div>
-
-    <div class="two-col">
-      <div class="section">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
-          <div style="width:42px;height:42px;background:#2563eb;color:#fff;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;">博報堂</div>
-          <div>
-            <div style="font-weight:700;color:var(--text-strong);">博報堂 × PeopleX</div>
-            <div style="font-size:11px;color:var(--text-muted);">広告 / AI採用エージェント構築</div>
-          </div>
-        </div>
-        <div style="font-size:12px;color:var(--text);line-height:1.7;margin-bottom:14px;">技術売り・高単価・コンサル型の営業構造でKDDIアイレット様と共通。AI採用エージェント構築の実装パターンを保有。</div>
-        <div class="three-col" style="gap:8px;">
-          <div style="background:var(--surface-2);border-radius:8px;padding:10px;text-align:center;"><div style="font-size:10px;color:var(--text-muted);">商談準備時間</div><div style="font-size:18px;font-weight:700;color:#16a34a;">-58%</div></div>
-          <div style="background:var(--surface-2);border-radius:8px;padding:10px;text-align:center;"><div style="font-size:10px;color:var(--text-muted);">面談実施率</div><div style="font-size:18px;font-weight:700;color:#2563eb;">+24pt</div></div>
-          <div style="background:var(--surface-2);border-radius:8px;padding:10px;text-align:center;"><div style="font-size:10px;color:var(--text-muted);">推薦精度</div><div style="font-size:18px;font-weight:700;color:#f59e0b;">87/100</div></div>
-        </div>
-      </div>
-
-      <div class="section">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
-          <div style="width:42px;height:42px;background:#0ac274;color:#fff;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:10px;">ヒューマン</div>
-          <div>
-            <div style="font-weight:700;color:var(--text-strong);">ヒューマン・リソシア</div>
-            <div style="font-size:11px;color:var(--text-muted);">人材 / 拠点別ばらつき対策</div>
-          </div>
-        </div>
-        <div style="font-size:12px;color:var(--text);line-height:1.7;margin-bottom:14px;">業界は異なるが、<strong>拠点ごとの組織構造がSIerと同型</strong>。スケール局面での営業ノウハウ展開の好事例。</div>
-        <div class="three-col" style="gap:8px;">
-          <div style="background:var(--surface-2);border-radius:8px;padding:10px;text-align:center;"><div style="font-size:10px;color:var(--text-muted);">新人立ち上げ期間</div><div style="font-size:18px;font-weight:700;color:#16a34a;">-43%</div></div>
-          <div style="background:var(--surface-2);border-radius:8px;padding:10px;text-align:center;"><div style="font-size:10px;color:var(--text-muted);">拠点間ギャップ</div><div style="font-size:18px;font-weight:700;color:#2563eb;">-31pt</div></div>
-          <div style="background:var(--surface-2);border-radius:8px;padding:10px;text-align:center;"><div style="font-size:10px;color:var(--text-muted);">受注率(下位拠点)</div><div style="font-size:18px;font-weight:700;color:#f59e0b;">+18pt</div></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="section">
-      <div class="section-title">その他、aileadをご活用いただいている企業様</div>
-      <div style="display:flex;gap:14px;flex-wrap:wrap;">
-        <div style="padding:12px 20px;background:var(--surface-2);border-radius:8px;font-weight:700;color:var(--text-strong);">マイナビ</div>
-        <div style="padding:12px 20px;background:var(--surface-2);border-radius:8px;font-weight:700;color:var(--text-strong);">ニトリ</div>
-        <div style="padding:12px 20px;background:var(--surface-2);border-radius:8px;font-weight:700;color:var(--text-strong);">DYM</div>
-        <div style="padding:12px 20px;background:var(--surface-2);border-radius:8px;font-weight:700;color:var(--text-strong);">Hakuhodo DY ONE</div>
-        <div style="padding:12px 20px;background:var(--surface-2);border-radius:8px;font-weight:700;color:var(--text-strong);">Sansan</div>
-        <div style="padding:12px 20px;background:var(--surface-2);border-radius:8px;font-weight:700;color:var(--text-strong);">CyberAgent</div>
-        <div style="padding:12px 20px;background:var(--surface-2);border-radius:8px;font-weight:700;color:var(--text-strong);">unerry</div>
-        <div style="padding:12px 20px;background:var(--surface-2);border-radius:8px;font-weight:700;color:var(--text-strong);">他多数</div>
-      </div>
-    </div>
-
-    <div class="section">
-      <div class="section-title"><span class="ai-tag">AI</span>KDDIアイレット様への示唆</div>
-      <div class="ai-insight">
-        <div class="ai-insight-icon">▶</div>
-        <div class="ai-insight-text"><strong>構造が同じ事例で、規模に比例して効く</strong>: 営業組織OSの構築という課題は、拠点・グループ・人数が増えるほど暗黙知の属人化リスクが大きくなるため、KDDIアイレット様(1,700→3,000名)の方が事例企業よりも構造化資産の価値が大きい。</div>
-      </div>
-      <div class="ai-insight">
-        <div class="ai-insight-icon">i</div>
-        <div class="ai-insight-text">クラウドSIer/AIインテグレーターという業界での公開可能事例は現時点で限定的。これは「業界完全一致」ではなく <strong>「構造的に転用可能なアナロジー」</strong>として誠実にご提示しています。</div>
-      </div>
     </div>
   </section>
 
@@ -2573,9 +2330,6 @@ ${s.next}
     const k = e.key.toLowerCase();
     if (k === '0') show('home');
     else if (k === 'r') show('roi');
-    else if (k === 's') show('story');
-    else if (k === 'v') show('valuechain');
-    else if (k === 'c') show('cases');
     else if (k === ',') show('settings');
     else if (k === 'p' && (e.ctrlKey || e.metaKey || e.shiftKey)) { e.preventDefault(); togglePresentation(); }
     else if (k === 'arrowright' && document.body.classList.contains('presentation')) presNext();
@@ -2722,7 +2476,7 @@ ${s.next}
   }
 
   // ===== Presentation mode =====
-  const PRES_PAGES = ['home','valuechain','agent1','agent2','agent3','agent4','agent5','agent6','roi','story','cases','settings'];
+  const PRES_PAGES = ['home','agent1','agent2','agent3','agent4','agent5','agent6','roi','settings'];
   let presIdx = 0;
   function togglePresentation() {
     document.body.classList.toggle('presentation');
