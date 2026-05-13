@@ -393,6 +393,50 @@
   .install-hint .install-x { opacity: 0.7; }
   .install-hint:hover { background: #1d4ed8; }
 
+  /* AI Off mode */
+  body.ai-off .ai-tag { background: #94a3b8 !important; }
+  body.ai-off .ai-insight { background: #f1f5f9; opacity: 0.7; }
+  body.ai-off .ai-insight-icon { background: #94a3b8; }
+  body.ai-off .live-dot { background: #94a3b8; animation: none; }
+  body.ai-off .live-badge { color: #94a3b8; }
+
+  /* Audio waveform for chat */
+  .waveform { display: inline-flex; gap: 2px; align-items: flex-end; height: 18px; }
+  .waveform span { display: inline-block; width: 3px; background: var(--primary); border-radius: 1px; animation: wave 1.2s ease-in-out infinite; }
+  .waveform span:nth-child(1) { height: 30%; animation-delay: 0s; }
+  .waveform span:nth-child(2) { height: 60%; animation-delay: 0.1s; }
+  .waveform span:nth-child(3) { height: 90%; animation-delay: 0.2s; }
+  .waveform span:nth-child(4) { height: 70%; animation-delay: 0.3s; }
+  .waveform span:nth-child(5) { height: 50%; animation-delay: 0.4s; }
+  .waveform span:nth-child(6) { height: 80%; animation-delay: 0.5s; }
+  .waveform span:nth-child(7) { height: 40%; animation-delay: 0.6s; }
+  @keyframes wave { 0%, 100% { transform: scaleY(0.6); } 50% { transform: scaleY(1.2); } }
+
+  /* AI thinking steps */
+  .thinking-steps { background: var(--surface-2); border-radius: 10px; padding: 12px 16px; margin: 12px 0; }
+  .thinking-step { display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--text-soft); padding: 4px 0; }
+  .thinking-step .ts-icon { width: 18px; height: 18px; border-radius: 50%; background: #e2e8f0; color: #94a3b8; display: inline-flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; flex-shrink: 0; }
+  .thinking-step.done .ts-icon { background: #16a34a; color: #fff; }
+  .thinking-step.active .ts-icon { background: var(--primary); color: #fff; animation: pulse2 1s ease infinite; }
+  .thinking-step.active { color: var(--text-strong); font-weight: 600; }
+  @keyframes pulse2 { 50% { box-shadow: 0 0 0 6px rgba(37,99,235,0.2); } }
+
+  /* Refined mobile */
+  @media (max-width: 900px) {
+    .chat-main { min-height: 240px; }
+    .chat-bubble { font-size: 12px; max-width: 95%; }
+    .assist-pane { padding: 10px 12px; }
+    .doc-body { padding: 14px; }
+    .doc-header-title { font-size: 13px; }
+    .three-col { grid-template-columns: 1fr; }
+    .form-row { flex-direction: column; align-items: stretch; }
+    .form-row > * { width: 100%; }
+    .topbar-btn { font-size: 11px; padding: 4px 8px; }
+    .topbar-btn span { display: none; }
+    .install-hint { left: 16px; right: 16px; }
+    .detail-panel { padding-bottom: 60px; }
+  }
+
   /* Source tags */
   .src-tag { display: inline-block; font-size: 10px; padding: 2px 8px; border-radius: 4px; background: #f1f5f9; color: #64748b; margin-right: 4px; }
 
@@ -468,6 +512,14 @@
   <button class="topbar-btn" onclick="toggleTheme()" id="theme-btn">
     <svg class="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
     <span id="theme-label">Dark</span>
+  </button>
+  <button class="topbar-btn" id="ai-toggle-btn" onclick="toggleAIMode()">
+    <svg class="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="9 12 12 15 16 10"/></svg>
+    AI ON
+  </button>
+  <button class="topbar-btn" onclick="startTour()">
+    <svg class="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    ガイド
   </button>
   <button class="topbar-btn" onclick="togglePresentation()">
     <svg class="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
@@ -808,13 +860,13 @@
       </div>
       <div class="card">
         <div class="card-label">高スコア企業 (80以上)</div>
-        <div class="card-value">8<span class="unit">社</span></div>
+        <div class="card-value" data-count="4">4<span class="unit">社</span></div>
         <div class="card-trend trend-up">即アプローチ推奨</div>
       </div>
       <div class="card">
         <div class="card-label">マッチ平均スコア</div>
-        <div class="card-value">67.2<span class="unit">/100</span></div>
-        <div class="card-trend">前週: 64.5</div>
+        <div class="card-value" data-count="78.4">78.4<span class="unit">/100</span></div>
+        <div class="card-trend trend-up">前週: 74.8</div>
       </div>
       <div class="card">
         <div class="card-label">本日のアサイン推薦数</div>
@@ -971,18 +1023,22 @@
       <div style="font-size:14px;font-weight:700;color:#1e293b;margin-bottom:12px;">新しい商談の準備をAIに依頼</div>
       <div class="form-row">
         <label class="form-label">対象企業</label>
-        <select id="agent2-company">
-          <option value="">企業を選択...</option>
-          <option value="s-hd" selected>S社 HD (製造 / Google Cloud移行)</option>
-          <option value="m">M社 (金融 / gaipack導入)</option>
-          <option value="r">R社 (小売 / データ基盤再構築)</option>
-          <option value="l">L社 (物流 / AI駆動開発)</option>
-        </select>
+        <input class="text-input" type="text" id="agent2-company-text" list="agent2-suggestions" value="S社 HD" placeholder="企業名を入力(自由入力可)" style="min-width:240px;">
+        <datalist id="agent2-suggestions">
+          <option value="S社 HD">S社 HD — 製造 / Google Cloud移行</option>
+          <option value="M社">M社 — 金融 / gaipack導入</option>
+          <option value="R社">R社 — 小売 / データ基盤再構築</option>
+          <option value="L社">L社 — 物流 / AI駆動開発</option>
+          <option value="U社">U社 — メディア</option>
+          <option value="N社 グループ">N社 グループ — 製造</option>
+          <option value="P社">P社 — 製薬</option>
+          <option value="F社">F社 — 小売</option>
+        </datalist>
         <label class="form-label">商談日時</label>
         <input class="text-input" type="text" value="2026/5/15(木) 14:00" style="min-width:160px;">
         <button class="btn btn-primary" id="agent2-generate" onclick="generateAgent2()">▶ AIが準備する</button>
       </div>
-      <div class="form-helper">業績資料・IR・公開情報・過去商談データを横断して、約20-30分の作業を自動化します</div>
+      <div class="form-helper">企業名は自由入力可。リストにない企業もAIが公開情報から自動で分析します</div>
     </div>
 
     <!-- Loading -->
@@ -1128,10 +1184,26 @@
       </div>
     </div>
 
+    <!-- Drag drop zones -->
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px;">
+      <div class="dropzone" data-zone="pending" style="background:var(--surface-2);border:2px dashed #cbd5e1;border-radius:10px;padding:14px;text-align:center;">
+        <div style="font-size:11px;color:var(--text-muted);font-weight:700;letter-spacing:0.4px;">レビュー待ち</div>
+        <div id="dz-pending-count" style="font-size:22px;font-weight:700;color:var(--text-strong);margin-top:4px;">5</div>
+      </div>
+      <div class="dropzone" data-zone="approved" style="background:#dcfce7;border:2px dashed #16a34a;border-radius:10px;padding:14px;text-align:center;">
+        <div style="font-size:11px;color:#16a34a;font-weight:700;letter-spacing:0.4px;">承認済み</div>
+        <div id="dz-approved-count" style="font-size:22px;font-weight:700;color:#16a34a;margin-top:4px;">0</div>
+      </div>
+      <div class="dropzone" data-zone="rejected" style="background:#fee2e2;border:2px dashed #dc2626;border-radius:10px;padding:14px;text-align:center;">
+        <div style="font-size:11px;color:#dc2626;font-weight:700;letter-spacing:0.4px;">差し戻し</div>
+        <div id="dz-rejected-count" style="font-size:22px;font-weight:700;color:#dc2626;margin-top:4px;">0</div>
+      </div>
+    </div>
+
     <!-- Recommended assignments -->
     <div class="section">
       <div class="section-title"><span class="ai-tag">AI</span>本日の推薦アサイン (Top 5)</div>
-      <div class="section-sub">「マッチ理由」をAIが明示。マネージャ承認で即配分</div>
+      <div class="section-sub">行をドラッグして上の「承認済み」or「差し戻し」エリアに移すか、承認ボタンで即配分</div>
       <table>
         <thead>
           <tr>
@@ -1296,7 +1368,7 @@
 
     <!-- Live demo -->
     <div class="section">
-      <div class="section-title"><span class="ai-tag">LIVE</span>商談中アシスト画面 (シミュレーション)</div>
+      <div class="section-title"><span class="ai-tag">LIVE</span>商談中アシスト画面 (シミュレーション) <span style="margin-left:auto;display:inline-flex;align-items:center;gap:6px;font-size:11px;color:#dc2626;font-weight:700;letter-spacing:0.5px;"><span class="waveform"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span> 音声入力中</span></div>
       <div class="section-sub">対象: S社 HD様 初回商談 / 進行中: 田中PM・山本SE × CIO島田様 / 「▶ 次の発言」ボタンで商談が進みます</div>
       <div class="chat-pane">
         <!-- Chat main -->
@@ -1420,7 +1492,84 @@
     <!-- S社 detail -->
     <div class="section">
       <div class="section-title"><span class="ai-tag">AI</span>S社 HD様の組織マップ</div>
-      <div class="section-sub">商談記録 + メールやり取り + 名刺データ + LinkedIn公開情報から自動構築</div>
+      <div class="section-sub">商談記録 + メールやり取り + 名刺データ + LinkedIn公開情報から自動構築。アバターをクリックで詳細</div>
+
+      <!-- SVG Org Chart -->
+      <div style="background:var(--surface-2);border-radius:10px;padding:20px;margin-bottom:20px;overflow-x:auto;">
+        <svg id="org-chart-svg" viewBox="0 0 700 360" style="width:100%;max-width:800px;height:360px;display:block;margin:0 auto;">
+          <!-- Connection lines -->
+          <defs>
+            <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#cbd5e1"/></marker>
+          </defs>
+
+          <!-- Lines -->
+          <g stroke="#cbd5e1" stroke-width="2" fill="none">
+            <!-- 島田 - 中田 (executive peers) -->
+            <line x1="200" y1="80" x2="500" y2="80" stroke-dasharray="4,4"/>
+            <!-- 島田 -> 小松 (chain of command) -->
+            <line x1="200" y1="110" x2="200" y2="190"/>
+            <!-- 小松 -> 渡辺 -->
+            <line x1="200" y1="220" x2="350" y2="280"/>
+            <!-- 小松 - 松井 (cross-team influence) -->
+            <line x1="240" y1="200" x2="510" y2="200" stroke-dasharray="4,4"/>
+            <!-- 松井 -> 渡辺 (info exchange) -->
+            <line x1="550" y1="220" x2="380" y2="280" stroke-dasharray="2,3"/>
+          </g>
+
+          <!-- Section labels -->
+          <text x="200" y="35" text-anchor="middle" font-size="11" font-weight="700" fill="#94a3b8">━ 意思決定層 ━</text>
+          <text x="500" y="35" text-anchor="middle" font-size="11" font-weight="700" fill="#94a3b8">━ 財務・他部署 ━</text>
+          <text x="200" y="165" text-anchor="middle" font-size="11" font-weight="700" fill="#94a3b8">━ 現場推進層 ━</text>
+          <text x="365" y="260" text-anchor="middle" font-size="11" font-weight="700" fill="#94a3b8">━ 技術検証 ━</text>
+
+          <!-- 島田 CIO (温度中) -->
+          <g style="cursor:pointer" onclick="showStakeDetail('shimada')">
+            <circle cx="200" cy="80" r="28" fill="#f59e0b" stroke="#fff" stroke-width="3"/>
+            <text x="200" y="86" text-anchor="middle" font-size="14" font-weight="700" fill="#fff">島田</text>
+            <text x="200" y="125" text-anchor="middle" font-size="11" font-weight="700" fill="#1e293b">島田 CIO</text>
+            <text x="200" y="140" text-anchor="middle" font-size="10" fill="#64748b">温度 中 / 面談3回</text>
+          </g>
+
+          <!-- 中田 CFO (温度低) -->
+          <g style="cursor:pointer" onclick="showStakeDetail('nakata')">
+            <circle cx="500" cy="80" r="28" fill="#94a3b8" stroke="#fff" stroke-width="3" stroke-dasharray="3,3"/>
+            <text x="500" y="86" text-anchor="middle" font-size="14" font-weight="700" fill="#fff">中田</text>
+            <text x="500" y="125" text-anchor="middle" font-size="11" font-weight="700" fill="#1e293b">中田 CFO</text>
+            <text x="500" y="140" text-anchor="middle" font-size="10" fill="#dc2626">★ 未接触</text>
+          </g>
+
+          <!-- 小松 部長 (温度高) -->
+          <g style="cursor:pointer" onclick="showStakeDetail('komatsu')">
+            <circle cx="200" cy="200" r="26" fill="#16a34a" stroke="#fff" stroke-width="3"/>
+            <text x="200" y="206" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">小松</text>
+            <text x="200" y="244" text-anchor="middle" font-size="11" font-weight="700" fill="#1e293b">小松 情シス部長</text>
+            <text x="200" y="258" text-anchor="middle" font-size="10" fill="#16a34a">温度 高 / 面談5回</text>
+          </g>
+
+          <!-- 松井 DX推進 (温度低) -->
+          <g style="cursor:pointer" onclick="showStakeDetail('matsui')">
+            <circle cx="550" cy="200" r="24" fill="#94a3b8" stroke="#fff" stroke-width="3" stroke-dasharray="3,3"/>
+            <text x="550" y="206" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">松井</text>
+            <text x="550" y="240" text-anchor="middle" font-size="11" font-weight="700" fill="#1e293b">松井 DX推進室</text>
+            <text x="550" y="254" text-anchor="middle" font-size="10" fill="#64748b">最終接触 1月</text>
+          </g>
+
+          <!-- 渡辺 課長 (温度高) -->
+          <g style="cursor:pointer" onclick="showStakeDetail('watanabe')">
+            <circle cx="365" cy="305" r="24" fill="#16a34a" stroke="#fff" stroke-width="3"/>
+            <text x="365" y="311" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">渡辺</text>
+            <text x="365" y="345" text-anchor="middle" font-size="11" font-weight="700" fill="#1e293b">渡辺 情シス課長</text>
+          </g>
+        </svg>
+
+        <!-- Legend -->
+        <div style="display:flex;gap:18px;justify-content:center;margin-top:10px;flex-wrap:wrap;font-size:11px;color:var(--text-soft);">
+          <span><span style="display:inline-block;width:10px;height:10px;background:#16a34a;border-radius:50%;margin-right:4px;"></span>温度 高</span>
+          <span><span style="display:inline-block;width:10px;height:10px;background:#f59e0b;border-radius:50%;margin-right:4px;"></span>温度 中</span>
+          <span><span style="display:inline-block;width:10px;height:10px;background:#94a3b8;border-radius:50%;margin-right:4px;"></span>温度 低</span>
+          <span style="border-left:1px solid var(--border);padding-left:12px;">— 報告関係 / ┄ 影響関係(部署横断)</span>
+        </div>
+      </div>
 
       <div class="two-col" style="margin-top:14px;">
         <!-- 経営層 -->
@@ -1531,8 +1680,8 @@
       </div>
       <div class="card">
         <div class="card-label">今月の自動接触</div>
-        <div class="card-value">1,247<span class="unit">件</span></div>
-        <div class="card-trend trend-up">開封率 38%</div>
+        <div class="card-value" data-count="1247">1,247<span class="unit">件</span></div>
+        <div class="card-trend trend-up">開封率 38% / 過去90日累計 3,742件</div>
       </div>
       <div class="card">
         <div class="card-label">反応リード (商談化候補)</div>
@@ -1887,18 +2036,31 @@ KDDIアイレットの△△と申します。
   // ===== Agent 2: Generate =====
   function generateAgent2() {
     const btn = document.getElementById('agent2-generate');
+    const input = document.getElementById('agent2-company-text');
+    const companyName = input ? input.value.trim() : 'S社 HD';
+    const isKnown = ['S社 HD','M社','R社','L社','U社','N社 グループ','P社','F社'].includes(companyName);
     btn.disabled = true;
     btn.textContent = '⏳ 生成中...';
     document.getElementById('agent2-results').classList.add('hidden');
     document.getElementById('agent2-doc').classList.add('hidden');
     document.getElementById('agent2-loading').classList.remove('hidden');
 
-    const steps = [
-      {t:'AIが業績資料を読み込み中...', s:'直近のIR・決算短信を分析しています'},
+    // Update doc header to reflect input
+    const docHeader = document.querySelector('#agent2-doc .doc-header-title');
+    if (docHeader) docHeader.textContent = `商談準備シート — ${companyName}様 / 初回商談 2026/5/15(木) 14:00`;
+
+    const steps = isKnown ? [
+      {t:`AIが${companyName}の業績資料を読み込み中...`, s:'直近のIR・決算短信を分析しています'},
       {t:'公開情報を横断検索中...', s:'プレスリリース・ニュース記事をスキャン中'},
       {t:'過去の商談データを参照中...', s:'関連する過去案件・失注分析を抽出'},
       {t:'仮説を生成中...', s:'AIが3案の仮説を生成しています'},
       {t:'質問リストを最適化中...', s:'担当営業の経験パターンに合わせて並べ替え'},
+    ] : [
+      {t:`「${companyName}」を社外データから自動発見中...`, s:'コーポレートサイト・LinkedIn・登記情報を取得'},
+      {t:'業績資料を読み込み中...', s:'EDINET・ニュースリリースを分析'},
+      {t:'業界・案件特性を判定中...', s:'類似業界の過去事例パターンと照合'},
+      {t:'仮説を生成中...', s:'AIが御社向けカスタムの3案を生成'},
+      {t:'質問リスト・関連事例を最適化中...', s:'初回商談用に最適なシナリオを構築'},
     ];
     let idx = 0;
     const interval = setInterval(() => {
@@ -1925,8 +2087,74 @@ KDDIアイレットの△△と申します。
     const tr = btn.closest('tr');
     tr.classList.add('approved-row');
     btn.outerHTML = '<span class="pill pill-green">✓ 承認済</span>';
+    updateDropzoneCounts(tr, 'approved');
     showToast('アサインを承認しました', 'success');
   }
+  function updateDropzoneCounts(tr, zone) {
+    const pendingEl = document.getElementById('dz-pending-count');
+    const approvedEl = document.getElementById('dz-approved-count');
+    const rejectedEl = document.getElementById('dz-rejected-count');
+    if (!pendingEl) return;
+    const pending = parseInt(pendingEl.textContent) || 0;
+    if (pending > 0) pendingEl.textContent = pending - 1;
+    if (zone === 'approved') {
+      approvedEl.textContent = (parseInt(approvedEl.textContent) || 0) + 1;
+      approvedEl.classList.add('counter-up'); setTimeout(()=>approvedEl.classList.remove('counter-up'),600);
+    } else if (zone === 'rejected') {
+      rejectedEl.textContent = (parseInt(rejectedEl.textContent) || 0) + 1;
+      rejectedEl.classList.add('counter-up'); setTimeout(()=>rejectedEl.classList.remove('counter-up'),600);
+    }
+  }
+  // Setup D&D on agent 3 assignment table rows
+  setTimeout(() => {
+    document.querySelectorAll('#agent3 .section tr[draggable]').forEach(tr => {
+      // already setup
+    });
+    // Make rows draggable
+    document.querySelectorAll('#agent3 .section table tbody tr').forEach((tr, idx) => {
+      // Only the assignment table (first table in agent3)
+      const firstTable = document.querySelector('#agent3 table');
+      if (!firstTable || !firstTable.contains(tr)) return;
+      tr.draggable = true;
+      tr.style.cursor = 'grab';
+      tr.addEventListener('dragstart', e => {
+        tr.style.opacity = '0.5';
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', 'row');
+        window._draggedRow = tr;
+      });
+      tr.addEventListener('dragend', e => {
+        tr.style.opacity = '';
+        window._draggedRow = null;
+      });
+    });
+    document.querySelectorAll('.dropzone').forEach(dz => {
+      dz.addEventListener('dragover', e => { e.preventDefault(); dz.style.transform = 'scale(1.03)'; });
+      dz.addEventListener('dragleave', e => { dz.style.transform = ''; });
+      dz.addEventListener('drop', e => {
+        e.preventDefault();
+        dz.style.transform = '';
+        const tr = window._draggedRow;
+        if (!tr || tr.classList.contains('approved-row') || tr.classList.contains('rejected-row')) return;
+        const zone = dz.dataset.zone;
+        if (zone === 'approved') {
+          tr.classList.add('approved-row');
+          const btn = tr.querySelector('.approve-btn');
+          if (btn) btn.outerHTML = '<span class="pill pill-green">✓ 承認済</span>';
+          updateDropzoneCounts(tr, 'approved');
+          showToast('ドラッグで承認しました', 'success');
+        } else if (zone === 'rejected') {
+          tr.classList.add('rejected-row');
+          tr.style.opacity = '0.5';
+          tr.style.background = 'rgba(220,38,38,0.05)';
+          const btn = tr.querySelector('.approve-btn');
+          if (btn) btn.outerHTML = '<span class="pill pill-red">✕ 差し戻し</span>';
+          updateDropzoneCounts(tr, 'rejected');
+          showToast('差し戻しました');
+        }
+      });
+    });
+  }, 500);
 
   // ===== Agent 4: Chat simulation =====
   const CHAT_STEPS = [
@@ -2504,6 +2732,171 @@ ${s.next}
       togglePresentation();
     }
   }, true);
+
+  // ===== Count-up animation on page show =====
+  function animateCounters(scopeEl) {
+    const els = (scopeEl || document).querySelectorAll('.card-value:not([data-counted])');
+    els.forEach(el => {
+      const html = el.innerHTML;
+      const m = html.match(/^([+-]?)([\d,\.]+)/);
+      if (!m) return;
+      const sign = m[1] || '';
+      const numStr = m[2].replace(/,/g,'');
+      const target = parseFloat(numStr);
+      if (isNaN(target) || target <= 0) return;
+      const rest = html.substring(m[0].length);
+      const isDecimal = numStr.includes('.');
+      const decimals = isDecimal ? (numStr.split('.')[1] || '').length : 0;
+      const duration = 900;
+      const startTime = performance.now();
+      el.dataset.counted = '1';
+      function step(now) {
+        const p = Math.min((now - startTime) / duration, 1);
+        const eased = 1 - Math.pow(1 - p, 3);
+        const cur = target * eased;
+        const formatted = isDecimal
+          ? cur.toFixed(decimals)
+          : Math.round(cur).toLocaleString('ja-JP');
+        el.innerHTML = sign + formatted + rest;
+        if (p < 1) requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    });
+  }
+  // Hook into show()
+  const _originalShow = show;
+  show = function(id, targetEl) {
+    _originalShow(id, targetEl);
+    // Reset counters on page enter so they animate again
+    const page = document.getElementById(id);
+    if (page) {
+      page.querySelectorAll('.card-value[data-counted]').forEach(el => el.removeAttribute('data-counted'));
+      setTimeout(() => animateCounters(page), 100);
+    }
+  };
+  // Initial animate for home
+  setTimeout(() => animateCounters(document.getElementById('home')), 300);
+
+  // ===== A/B Toggle (AI ON / OFF) =====
+  let aiMode = 'on';
+  function toggleAIMode() {
+    aiMode = aiMode === 'on' ? 'off' : 'on';
+    const btn = document.getElementById('ai-toggle-btn');
+    if (aiMode === 'off') {
+      document.body.classList.add('ai-off');
+      btn.innerHTML = '<svg class="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>AI OFF';
+      btn.style.color = '#dc2626';
+      btn.style.borderColor = '#dc2626';
+      // Swap all data-ai-on / data-ai-off values
+      document.querySelectorAll('[data-ai-on]').forEach(el => {
+        el.dataset.aiOnCache = el.textContent;
+        el.textContent = el.dataset.aiOff || '—';
+      });
+      showToast('AI OFF: 導入前の数字を表示中', 'success');
+    } else {
+      document.body.classList.remove('ai-off');
+      btn.innerHTML = '<svg class="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="9 12 12 15 16 10"/></svg>AI ON';
+      btn.style.color = '';
+      btn.style.borderColor = '';
+      document.querySelectorAll('[data-ai-on]').forEach(el => {
+        if (el.dataset.aiOnCache) el.textContent = el.dataset.aiOnCache;
+      });
+      showToast('AI ON: 導入後の数字を表示中', 'success');
+    }
+  }
+
+  // ===== Score Breakdowns - extended =====
+  Object.assign(SCORE_BREAKDOWNS, {
+    'm': { title: 'M社 — マッチスコア 87 の根拠', sources: ['お客様窓口情報', 'Q4予算情報', '過去類似事例'], items: [['Q4予算消化期トリガー', '+22'],['金融業界の弊社コンプラ実装実績(8件)', '+20'],['gaipack類似事例 3件の転用可能性', '+18'],['担当窓口からの能動的アプローチ', '+12'],['佐藤PMの金融知見と高マッチ', '+10'],['NDA体制の事前整備が必要', '-5']], total: 77 },
+    'r': { title: 'R社 — マッチスコア 85 の根拠', sources: ['BigQuery PoC問合せ', '弊社小売実績'], items: [['BigQuery設計の弊社実績', '+25'],['過去失注のリベンジ機会', '+20'],['鈴木PMの小売知見', '+18'],['データ基盤再構築のタイミング', '+15'],['予算規模が中程度', '+7']], total: 85 },
+    'l': { title: 'L社 — マッチスコア 82 の根拠', sources: ['プレス情報', 'LinkedIn行動'], items: [['新規DX部署立ち上げ直後', '+22'],['弊社AI駆動開発のプレス露出', '+18'],['物流業界での実装パターン', '+16'],['伊藤コンサル+中村SEのスキルマッチ', '+15'],['競合動向の追い風', '+11']], total: 82 },
+  });
+  // Make all score badges in agent 1 table clickable
+  setTimeout(() => {
+    document.querySelectorAll('#agent1-table tbody tr').forEach(tr => {
+      const id = {
+        'S社 HD': 's-hd', 'M社': 'm', 'R社': 'r', 'L社': 'l', 'U社': 'u',
+        'N社 グループ': 'n', 'P社': 'p', 'F社': 'f'
+      }[tr.dataset.company];
+      const badge = tr.querySelector('.score-badge');
+      if (badge && !badge.classList.contains('with-breakdown')) {
+        badge.classList.add('with-breakdown');
+        badge.onclick = function(ev) { ev.stopPropagation(); showScoreBreakdown(ev, id); };
+      }
+    });
+  }, 200);
+
+  // Generic score breakdown for stake cards (agent 5)
+  const STAKE_BREAKDOWNS = {
+    'shimada': { title: '島田CIO 温度「中」の根拠', sources: ['過去商談ログ','メール返信タイミング','LinkedIn行動'], items: [['面談3回での前向き発言頻度', '+18'],['IR言及との合致', '+12'],['返信スピード平均1営業日', '+8'],['明確な意思決定タイムラインの欠如', '-15'],['CFO同席率0%', '-10']], total: 'CIO島田様: 中', __label: '内訳合計(中=40〜70)' },
+    'nakata': { title: 'CFO中田 温度「低」の根拠', sources: ['接触履歴','社外発信'], items: [['面談ゼロ', '-30'],['経由紹介ルートも未確立', '-15'],['財務関心領域は本案件に重なる', '+8']], total: 'CFO中田様: 低', __label: '内訳合計(低=20以下)' },
+  };
+  function showStakeBreakdown(ev, id) {
+    const data = STAKE_BREAKDOWNS[id];
+    if (!data) return;
+    ev.stopPropagation();
+    const html = `
+      <div style="font-size:13px;font-weight:700;color:var(--text-strong);margin-bottom:10px;">${data.title}</div>
+      <div style="font-size:10px;color:var(--text-muted);margin-bottom:10px;">参照データ: ${data.sources.join(' / ')}</div>
+      ${data.items.map(([l,v]) => `<div class="breakdown-row"><div class="b-label">${l}</div><div class="b-value">${v}</div></div>`).join('')}
+      <div class="breakdown-row total"><div class="b-label">${data.__label}</div><div class="b-value" style="font-size:14px;">${data.total}</div></div>`;
+    openDetail(data.title, 'AI判定の透明化', `<div class="score-breakdown-popover">${html}</div>`);
+  }
+
+  // ===== Tour =====
+  const TOUR_STEPS = [
+    { sel: '.sidebar-section-label', text: '左サイドバーから「経営層向け」「6つのAIエージェント」「設定」を切替できます。' },
+    { sel: '.live-badge', text: 'リアルタイムで稼働中。時計と通知が動きます。' },
+    { sel: '#theme-btn', text: 'テーマ切替(Dキーでも可)、印刷、プレゼンモード(Cmd+Shift+P)も使えます。' },
+    { sel: '#home .summary-cards', text: '6エージェント横串のKPI。本日の経営層レビュー画面として使えます。' },
+    { sel: '.kbd', text: 'キーボード:1〜6で各エージェント、Rでシミュレーター、0でホーム、Dでテーマ。' },
+  ];
+  let tourIdx = 0;
+  function startTour() {
+    tourIdx = 0;
+    showTourStep();
+  }
+  function showTourStep() {
+    closeTour();
+    if (tourIdx >= TOUR_STEPS.length) {
+      try { localStorage.setItem('ailead-tour-done', '1'); } catch(e){}
+      return;
+    }
+    const step = TOUR_STEPS[tourIdx];
+    const target = document.querySelector(step.sel);
+    if (!target) { tourIdx++; showTourStep(); return; }
+    const rect = target.getBoundingClientRect();
+    const overlay = document.createElement('div');
+    overlay.id = 'tour-overlay';
+    overlay.style.cssText = `position:fixed;inset:0;background:rgba(15,23,42,0.55);z-index:300;pointer-events:auto;`;
+    const hole = document.createElement('div');
+    const pad = 8;
+    hole.style.cssText = `position:fixed;left:${rect.left-pad}px;top:${rect.top-pad}px;width:${rect.width+pad*2}px;height:${rect.height+pad*2}px;box-shadow:0 0 0 9999px rgba(15,23,42,0.55);border-radius:10px;z-index:301;pointer-events:none;border:2px solid #60a5fa;`;
+    const tip = document.createElement('div');
+    const tipTop = Math.min(rect.bottom + 16, window.innerHeight - 180);
+    tip.style.cssText = `position:fixed;left:${Math.max(20, rect.left)}px;top:${tipTop}px;max-width:360px;background:#fff;color:#1e293b;padding:16px 18px;border-radius:12px;box-shadow:0 12px 32px rgba(0,0,0,0.25);z-index:302;`;
+    tip.innerHTML = `<div style="font-size:11px;color:#94a3b8;font-weight:700;margin-bottom:6px;">ガイド ${tourIdx+1}/${TOUR_STEPS.length}</div><div style="font-size:13px;line-height:1.7;color:#334155;margin-bottom:10px;">${step.text}</div><div style="display:flex;gap:6px;justify-content:flex-end;"><button class="btn btn-ghost btn-sm" onclick="closeTour();try{localStorage.setItem('ailead-tour-done','1');}catch(e){}">スキップ</button><button class="btn btn-primary btn-sm" onclick="tourIdx++;showTourStep();">${tourIdx < TOUR_STEPS.length-1 ? '次へ →' : '完了'}</button></div>`;
+    document.body.appendChild(overlay);
+    document.body.appendChild(hole);
+    document.body.appendChild(tip);
+  }
+  function closeTour() {
+    ['tour-overlay'].forEach(id => { const el = document.getElementById(id); if (el) el.remove(); });
+    document.querySelectorAll('[style*="9999px"]').forEach(el => el.remove());
+    document.querySelectorAll('div').forEach(el => { if (el.innerHTML && el.innerHTML.includes('ガイド ') && el.style.zIndex === '302') el.remove(); });
+  }
+  // Auto-start tour on first visit
+  setTimeout(() => {
+    try {
+      if (!localStorage.getItem('ailead-tour-done')) {
+        startTour();
+      }
+    } catch(e){}
+  }, 1400);
+  window.startTour = startTour;
+  window.closeTour = closeTour;
+  window.tourIdx = tourIdx;
+  Object.defineProperty(window, 'tourIdx', { get: () => tourIdx, set: v => tourIdx = v, configurable: true });
 
   // ===== PWA: Service Worker registration =====
   if ('serviceWorker' in navigator) {
