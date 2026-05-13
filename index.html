@@ -4,9 +4,38 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ailead AI Agents — KDDIアイレット様向け</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', Meiryo, sans-serif; background: #f5f6fa; color: #334155; display: flex; min-height: 100vh; }
+  :root {
+    --bg: #f5f6fa;
+    --surface: #fff;
+    --surface-2: #f8fafc;
+    --border: #e8e8e8;
+    --border-2: #f1f5f9;
+    --text: #334155;
+    --text-strong: #1e293b;
+    --text-muted: #94a3b8;
+    --text-soft: #64748b;
+    --primary: #2563eb;
+    --primary-soft: #eff6ff;
+    --primary-light: #dbeafe;
+  }
+  body.dark {
+    --bg: #0f172a;
+    --surface: #1e293b;
+    --surface-2: #0f172a;
+    --border: #334155;
+    --border-2: #1e293b;
+    --text: #cbd5e1;
+    --text-strong: #f1f5f9;
+    --text-muted: #64748b;
+    --text-soft: #94a3b8;
+    --primary: #60a5fa;
+    --primary-soft: #1e3a8a;
+    --primary-light: #1e40af;
+  }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', Meiryo, sans-serif; background: var(--bg); color: var(--text); display: flex; min-height: 100vh; transition: background 0.2s, color 0.2s; }
   a { color: inherit; text-decoration: none; }
 
   /* ===== Sidebar ===== */
@@ -233,6 +262,102 @@
   tr.approved-row { background: #f0fdf4 !important; }
   tr.approved-row td:last-child::after { content: ''; }
 
+  /* ===== Top Header (時計 + LIVE + 設定) ===== */
+  .topbar { position: fixed; top: 0; left: 240px; right: 0; height: 48px; background: rgba(255,255,255,0.92); backdrop-filter: blur(8px); border-bottom: 1px solid var(--border-2); display: flex; align-items: center; padding: 0 36px; gap: 18px; z-index: 50; }
+  body.dark .topbar { background: rgba(30,41,59,0.92); }
+  .live-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; color: #dc2626; letter-spacing: 0.5px; }
+  .live-dot { width: 8px; height: 8px; background: #dc2626; border-radius: 50%; animation: blink 1.5s infinite; }
+  .clock { font-size: 13px; color: var(--text-soft); font-variant-numeric: tabular-nums; }
+  .topbar-spacer { flex: 1; }
+  .notif-bell { position: relative; cursor: pointer; padding: 6px 8px; }
+  .notif-bell svg { width: 18px; height: 18px; color: var(--text-soft); }
+  .notif-bell:hover svg { color: var(--text-strong); }
+  .notif-count { position: absolute; top: 2px; right: 0px; background: #dc2626; color: #fff; font-size: 9px; font-weight: 700; padding: 1px 4px; border-radius: 8px; min-width: 14px; text-align: center; }
+  .topbar-btn { background: transparent; border: 1px solid var(--border); padding: 6px 12px; border-radius: 8px; font-size: 12px; color: var(--text-soft); cursor: pointer; display: inline-flex; align-items: center; gap: 4px; transition: all 0.15s; }
+  .topbar-btn:hover { background: var(--surface-2); color: var(--text-strong); }
+  .topbar-btn .theme-icon { width: 14px; height: 14px; }
+  .main { margin-left: 240px; flex: 1; padding: 72px 36px 32px; }
+
+  /* Counter animation */
+  .counter-up { animation: pulse 0.6s ease; }
+  @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.06); color: #16a34a; } }
+
+  /* Typing dots animation */
+  .typing-dots { display: inline-flex; gap: 3px; align-items: center; }
+  .typing-dots span { width: 5px; height: 5px; background: var(--primary); border-radius: 50%; animation: typingBounce 1.2s infinite; }
+  .typing-dots span:nth-child(2) { animation-delay: 0.15s; }
+  .typing-dots span:nth-child(3) { animation-delay: 0.3s; }
+  @keyframes typingBounce { 0%, 60%, 100% { transform: translateY(0); opacity: 0.4; } 30% { transform: translateY(-4px); opacity: 1; } }
+
+  /* Dark mode adjustments */
+  body.dark .sidebar { background: var(--surface); border-right-color: var(--border); }
+  body.dark .sidebar-logo .logo-text { color: var(--primary); }
+  body.dark .sidebar-nav li { color: var(--text-soft); }
+  body.dark .sidebar-nav li.active { background: var(--primary-soft); color: var(--primary); }
+  body.dark .sidebar-nav li:hover:not(.active) { background: var(--surface-2); color: var(--text-strong); }
+  body.dark .card,
+  body.dark .section,
+  body.dark .detail-panel,
+  body.dark .topbar { background: var(--surface); }
+  body.dark .card-value, body.dark .page-title, body.dark .section-title, body.dark .detail-header-title { color: var(--text-strong); }
+  body.dark .hyp-card, body.dark .stake-card, body.dark .chat-main, body.dark .doc-block, body.dark .ai-insight, body.dark .email-card, body.dark .detail-stat, body.dark .criteria-card { background: var(--surface-2); }
+  body.dark .ai-insight { background: var(--primary-soft); }
+  body.dark .ai-insight-text { color: var(--text); }
+  body.dark .chat-bubble { background: var(--surface); color: var(--text); }
+  body.dark .chat-bubble.you { background: var(--primary); color: #fff; }
+  body.dark .assist-pane { background: var(--surface); border-color: var(--primary); }
+  body.dark .assist-text { color: var(--text); }
+  body.dark thead th { color: var(--text-muted); border-bottom-color: var(--border); }
+  body.dark tbody td { border-bottom-color: var(--border-2); color: var(--text); }
+  body.dark tbody tr:hover { background: var(--surface-2); }
+  body.dark .doc-header { background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%); }
+  body.dark select, body.dark input.text-input, body.dark .search-box { background: var(--surface); color: var(--text); border-color: var(--border); }
+
+  /* ===== Mobile responsive ===== */
+  @media (max-width: 900px) {
+    body { display: block; }
+    .sidebar { width: 100%; position: relative; height: auto; border-right: none; border-bottom: 1px solid var(--border); padding: 16px 0; flex-direction: row; flex-wrap: wrap; }
+    .sidebar-logo { width: 100%; padding: 0 16px 12px; margin-bottom: 8px; }
+    .sidebar-section-label { display: none; }
+    .sidebar-nav { display: flex; overflow-x: auto; padding: 0 12px; gap: 6px; flex: 1; flex-wrap: wrap; }
+    .sidebar-nav li { padding: 8px 12px; font-size: 12px; white-space: nowrap; border-right: none !important; border-radius: 8px; }
+    .sidebar-nav li.active { background: var(--primary); color: #fff; }
+    .sidebar-nav li.active .num { background: #fff; color: var(--primary); }
+    .sidebar-bottom { display: none; }
+    .topbar { left: 0; padding: 0 16px; height: 42px; gap: 10px; }
+    .topbar-spacer { display: none; }
+    .clock { font-size: 11px; }
+    .main { margin-left: 0; padding: 56px 16px 24px; }
+    .summary-cards { grid-template-columns: repeat(2, 1fr); }
+    .two-col, .three-col { grid-template-columns: 1fr; }
+    .chat-pane { grid-template-columns: 1fr; }
+    table { font-size: 12px; }
+    thead th, tbody td { padding: 8px 10px; }
+    .detail-panel { width: 100%; }
+    .page-title { font-size: 18px; }
+  }
+
+  /* ===== Print ===== */
+  @media print {
+    .sidebar, .topbar, .chat-controls, .email-actions, .approve-btn, .btn, .overlay, .detail-panel, #agent2-form, .footnote { display: none !important; }
+    .main { margin-left: 0; padding: 0; }
+    .page { display: block !important; page-break-after: always; }
+    .section, .card { box-shadow: none; border: 1px solid #e2e8f0; page-break-inside: avoid; }
+    body { background: #fff; }
+    .doc-header { background: #2563eb !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+
+  /* Chart container */
+  .chart-card { background: var(--surface); border-radius: 12px; padding: 22px 26px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+  .chart-wrap { position: relative; height: 240px; margin-top: 12px; }
+  .chart-wrap-sm { height: 200px; }
+  .chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 20px; }
+  .chart-title { font-size: 14px; font-weight: 700; color: var(--text-strong); margin-bottom: 4px; }
+  .chart-sub { font-size: 11px; color: var(--text-muted); margin-bottom: 8px; }
+
+  /* Keyboard shortcut hint */
+  .kbd { display: inline-block; background: var(--surface-2); border: 1px solid var(--border); border-radius: 4px; padding: 1px 5px; font-size: 10px; color: var(--text-soft); font-family: monospace; margin-left: 4px; }
+
   /* Source tags */
   .src-tag { display: inline-block; font-size: 10px; padding: 2px 8px; border-radius: 4px; background: #f1f5f9; color: #64748b; margin-right: 4px; }
 
@@ -264,12 +389,12 @@
 
   <div class="sidebar-section-label">AIエージェント</div>
   <ul class="sidebar-nav">
-    <li class="active" onclick="show('agent1')"><span class="num">①</span>顧客マッチング</li>
-    <li onclick="show('agent2')"><span class="num">②</span>事前準備</li>
-    <li onclick="show('agent3')"><span class="num">③</span>案件割り振り</li>
-    <li onclick="show('agent4')"><span class="num">④</span>リアルタイムレコメンド</li>
-    <li onclick="show('agent5')"><span class="num">⑤</span>ステークホルダー管理</li>
-    <li onclick="show('agent6')"><span class="num">⑥</span>ナーチャリング自動化</li>
+    <li class="active" onclick="show('agent1')"><span class="num">①</span>顧客マッチング<span class="kbd">1</span></li>
+    <li onclick="show('agent2')"><span class="num">②</span>事前準備<span class="kbd">2</span></li>
+    <li onclick="show('agent3')"><span class="num">③</span>案件割り振り<span class="kbd">3</span></li>
+    <li onclick="show('agent4')"><span class="num">④</span>リアルタイムレコメンド<span class="kbd">4</span></li>
+    <li onclick="show('agent5')"><span class="num">⑤</span>ステークホルダー管理<span class="kbd">5</span></li>
+    <li onclick="show('agent6')"><span class="num">⑥</span>ナーチャリング自動化<span class="kbd">6</span></li>
   </ul>
 
   <div class="sidebar-bottom">
@@ -283,6 +408,26 @@
     </div>
   </div>
 </aside>
+
+<!-- ===== Topbar ===== -->
+<div class="topbar">
+  <span class="live-badge"><span class="live-dot"></span>LIVE</span>
+  <span class="clock" id="clock">--:--:--</span>
+  <span style="font-size:11px;color:var(--text-muted);">本日のリアルタイム稼働中</span>
+  <div class="topbar-spacer"></div>
+  <div class="notif-bell" onclick="showToast('3件の新規マッチが見つかりました', 'success')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+    <span class="notif-count" id="notif-count">3</span>
+  </div>
+  <button class="topbar-btn" onclick="toggleTheme()" id="theme-btn">
+    <svg class="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+    <span id="theme-label">Dark</span>
+  </button>
+  <button class="topbar-btn" onclick="window.print()">
+    <svg class="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+    印刷
+  </button>
+</div>
 
 <!-- ===== Main ===== -->
 <main class="main">
@@ -320,20 +465,34 @@
       </div>
     </div>
 
+    <!-- Charts -->
+    <div class="chart-grid">
+      <div class="chart-card">
+        <div class="chart-title">マッチ候補数の推移 (過去30日)</div>
+        <div class="chart-sub">高スコア(80以上)が安定的に増加</div>
+        <div class="chart-wrap"><canvas id="chart-matching-trend"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">業界別マッチ分布 (今月)</div>
+        <div class="chart-sub">製造・金融が中心、AI駆動開発ニーズ業界が伸長</div>
+        <div class="chart-wrap"><canvas id="chart-industry-dist"></canvas></div>
+      </div>
+    </div>
+
     <!-- AI Insight -->
     <div class="section">
       <div class="section-title"><span class="ai-tag">AI</span>本日の気づき</div>
       <div class="ai-insight">
         <div class="ai-insight-icon">1</div>
-        <div class="ai-insight-text"><strong>製造業×SAP移行</strong> の案件が直近2週間で急増。過去の弊社受注パターンから、3名のSAPコンサル経験者をアサインすると受注確度が1.8倍になります。</div>
+        <div class="ai-insight-text"><strong>製造業×Google Cloud移行</strong> の数億規模案件が直近2週間で急増。<strong>Google Cloud Partner Award 2025 AI部門</strong>受賞の差別化材料が強く効きます。GCP資格保有者3名のアサインで受注確度が1.8倍。</div>
       </div>
       <div class="ai-insight">
         <div class="ai-insight-icon">2</div>
-        <div class="ai-insight-text"><strong>○○HD様(マッチスコア92)</strong> は10/15のIRで「Google Cloud移行検討中」と発表。弊社のGoogle Cloud Partner Award受賞は強い差別化材料になります。</div>
+        <div class="ai-insight-text"><strong>S社 HD様(マッチスコア92)</strong> は5/8のIRで「Google Cloud移行検討中」と発表。同業A社のGCP移行支援実績(田中PM担当)で、競合に対して大幅な優位。</div>
       </div>
       <div class="ai-insight">
         <div class="ai-insight-icon">3</div>
-        <div class="ai-insight-text"><strong>大手金融3社</strong> でgaipack型導入の動きあり。コンプライアンス要件の知見が豊富な田中PMをアサイン推奨。</div>
+        <div class="ai-insight-text"><strong>金融大手3社</strong>で<strong>gaipack</strong>型の生成AI導入需要を検知。コンプライアンス対応の事例知見と組み合わせ、佐藤PMをアサイン推奨。</div>
       </div>
     </div>
 
@@ -672,6 +831,20 @@
       </table>
     </div>
 
+    <!-- Charts -->
+    <div class="chart-grid">
+      <div class="chart-card">
+        <div class="chart-title">チーム全体の稼働率 (4週推移)</div>
+        <div class="chart-sub">過剰負荷を早期に検知、AI推薦で平準化</div>
+        <div class="chart-wrap"><canvas id="chart-workload-trend"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">主要メンバーのスキル分布</div>
+        <div class="chart-sub">案件特性とのマッチを多軸で判定</div>
+        <div class="chart-wrap"><canvas id="chart-skill-radar"></canvas></div>
+      </div>
+    </div>
+
     <!-- Workload distribution -->
     <div class="section">
       <div class="section-title"><span class="ai-tag">AI</span>営業メンバーの稼働状況</div>
@@ -797,6 +970,13 @@
           </div>
         </div>
       </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="chart-card" style="margin-bottom:20px;">
+      <div class="chart-title">レコメンド採用率の推移 (過去14日)</div>
+      <div class="chart-sub">学習を重ねるごとに採用率が向上</div>
+      <div class="chart-wrap chart-wrap-sm"><canvas id="chart-rec-adoption"></canvas></div>
     </div>
 
     <!-- Past recommendations -->
@@ -1082,6 +1262,20 @@ KDDIアイレットの△△と申します。
       </div>
     </div>
 
+    <!-- Charts -->
+    <div class="chart-grid">
+      <div class="chart-card">
+        <div class="chart-title">ナーチャリングのファネル (過去90日)</div>
+        <div class="chart-sub">AI生成メッセージで開封率・反応率が大幅改善</div>
+        <div class="chart-wrap"><canvas id="chart-nurture-funnel"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">配信→反応の推移 (週次)</div>
+        <div class="chart-sub">AIなし(過去) と AI有り(現在) の比較</div>
+        <div class="chart-wrap"><canvas id="chart-nurture-compare"></canvas></div>
+      </div>
+    </div>
+
     <!-- Funnel -->
     <div class="section">
       <div class="section-title"><span class="ai-tag">AI</span>過去90日のナーチャリング成果</div>
@@ -1152,12 +1346,64 @@ KDDIアイレットの△△と申します。
 
 <script>
   // ===== Sidebar Navigation =====
-  function show(id) {
+  function show(id, targetEl) {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.getElementById(id).classList.add('active');
     document.querySelectorAll('.sidebar-nav li').forEach(li => li.classList.remove('active'));
-    event.currentTarget.classList.add('active');
+    if (targetEl) targetEl.classList.add('active');
+    else if (typeof event !== 'undefined' && event && event.currentTarget && event.currentTarget.classList) event.currentTarget.classList.add('active');
+    else {
+      const idx = parseInt(id.replace('agent','')) - 1;
+      document.querySelectorAll('.sidebar-nav li')[idx].classList.add('active');
+    }
     window.scrollTo(0, 0);
+    // Re-init charts for the page if needed
+    if (window.initChartsForPage) window.initChartsForPage(id);
+  }
+
+  // ===== Keyboard shortcuts =====
+  document.addEventListener('keydown', e => {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
+    if (e.key >= '1' && e.key <= '6') {
+      show('agent' + e.key);
+    } else if (e.key === 'Escape') {
+      closeDetail();
+    } else if (e.key === 'd' || e.key === 'D') {
+      toggleTheme();
+    }
+  });
+
+  // ===== Clock =====
+  function updateClock() {
+    const now = new Date();
+    const pad = n => String(n).padStart(2, '0');
+    document.getElementById('clock').textContent = `${now.getFullYear()}/${pad(now.getMonth()+1)}/${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+  }
+  setInterval(updateClock, 1000);
+  updateClock();
+
+  // ===== Theme toggle =====
+  function toggleTheme() {
+    document.body.classList.toggle('dark');
+    document.getElementById('theme-label').textContent = document.body.classList.contains('dark') ? 'Light' : 'Dark';
+    try { localStorage.setItem('ailead-theme', document.body.classList.contains('dark') ? 'dark' : 'light'); } catch(e){}
+    // Redraw charts
+    if (window.renderAllCharts) window.renderAllCharts();
+  }
+  try {
+    if (localStorage.getItem('ailead-theme') === 'dark') {
+      document.body.classList.add('dark');
+      document.getElementById('theme-label').textContent = 'Light';
+    }
+  } catch(e){}
+
+  // ===== Counter animation =====
+  function bumpCounter(el, by) {
+    if (!el) return;
+    const current = parseInt(el.textContent.replace(/[^\d]/g,'')) || 0;
+    el.textContent = (current + by) + (el.dataset.unit || '');
+    el.classList.add('counter-up');
+    setTimeout(() => el.classList.remove('counter-up'), 600);
   }
 
   // ===== Toast =====
@@ -1246,11 +1492,25 @@ KDDIアイレットの△△と申します。
         <div class="detail-block-title">推奨アクション</div>
         <div class="ai-insight"><div class="ai-insight-icon">▶</div><div class="ai-insight-text">${c.action}</div></div>
       </div>
-      <div style="display:flex;gap:8px;">
-        <button class="btn btn-primary" onclick="showToast('事前準備エージェントを起動しました', 'success');closeDetail();">▶ 事前準備エージェント②を起動</button>
-        <button class="btn btn-outline" onclick="showToast('割り振り承認しました', 'success');closeDetail();">✓ アサインを承認</button>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn btn-primary" onclick="triggerAgent2From1('${id}', '${c.name}')">▶ 事前準備②を起動</button>
+        <button class="btn btn-outline" onclick="showToast('割り振りエージェント③に渡しました', 'success');setTimeout(()=>show('agent3'), 800);closeDetail();">→ ③割り振りへ</button>
+        <button class="btn btn-ghost" onclick="showToast('⑤ステークホルダー管理で関係者を確認', 'success');setTimeout(()=>show('agent5'), 800);closeDetail();">⑤関係者を見る</button>
       </div>`;
     openDetail(c.name, c.sub, html);
+  }
+
+  // ===== Agent 1 → Agent 2 連動 =====
+  function triggerAgent2From1(id, name) {
+    closeDetail();
+    show('agent2');
+    // Set the company in select if matches
+    const sel = document.getElementById('agent2-company');
+    if (sel) {
+      for (let opt of sel.options) { if (opt.value === id) { sel.value = id; break; } }
+    }
+    showToast(`${name}の準備をAIに依頼しました`, 'success');
+    setTimeout(() => generateAgent2(), 400);
   }
 
   // ===== Agent 1: Filter =====
@@ -1469,10 +1729,73 @@ KDDIアイレットの△△と申します。
         <div class="ai-insight"><div class="ai-insight-icon">▶</div><div class="ai-insight-text">${s.next}</div></div>
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;">
-        <button class="btn btn-primary" onclick="showToast('再接触メッセージを生成しました', 'success');closeDetail();">▶ 再接触メッセージを生成</button>
+        <button class="btn btn-primary" onclick="generateNurtureFromStake('${id}', '${s.name}')">▶ ⑥でメッセージを生成</button>
         <button class="btn btn-outline" onclick="showToast('カレンダー連携で日程提案を送信しました', 'success');closeDetail();">📅 日程提案を送信</button>
       </div>`;
     openDetail(s.name, s.sub, html);
+  }
+
+  // ===== Agent 5 → Agent 6 連動: 新しいメッセージを生成 =====
+  function generateNurtureFromStake(id, name) {
+    const s = STAKES[id];
+    closeDetail();
+    show('agent6');
+    showToast(`${name}向けの接触メッセージを生成中...`, 'success');
+    setTimeout(() => {
+      const list = document.getElementById('email-list');
+      if (!list) return;
+      const newCard = document.createElement('div');
+      newCard.className = 'email-card fade-in';
+      newCard.dataset.emailId = '99';
+      const subject = id === 'nakata' ? 'CFO中田様 — 投資対効果のご相談機会のお願い'
+                    : id === 'matsui' ? '松井様 — 生成AI活用の社内事例ご共有のご提案'
+                    : `${name}様 — ${s.next.substring(0, 18)}`;
+      const body = id === 'nakata' ?
+        `中田様
+
+ご挨拶もまだの中、突然のご連絡で恐縮です。
+KDDIアイレットの○○と申します。
+
+現在、貴社情報システム部の小松様を中心にGoogle Cloud移行の検討をご一緒させていただいております。
+
+財務面のインパクトについて中田様にも一度ご共有させていただきたく、15分ほどお時間頂戴できませんでしょうか?
+3年スパンの投資回収シナリオを事例ベースでお持ちします。
+
+—— 小松様経由で紹介依頼の打診を踏まえて、CFO向けに財務文脈で生成`
+        : id === 'matsui' ?
+        `松井様
+
+ご無沙汰しております。KDDIアイレットの○○です。
+
+LinkedInで先日の「生成AIの社内活用」に関する投稿を拝見し、当時のお話を思い出してご連絡差し上げました。
+
+弊社で最近、貴社と類似規模の企業で生成AI(gaipack)を全社展開した事例がありまして、もしご興味あれば30分程度ご共有させていただけませんでしょうか?
+
+—— 最終接触から4ヶ月、LinkedIn上で「生成AI」関連発信が増加。これを再接触トリガーとして`
+        : `${name}様
+
+KDDIアイレットの○○です。
+
+${s.next}
+
+—— AIが個別生成。承認後配信されます`;
+
+      newCard.innerHTML = `
+        <div class="email-meta" style="background:#fef3c7;color:#d97706;padding:4px 10px;border-radius:6px;display:inline-block;margin-bottom:6px;font-weight:700;">★ 新規生成</div>
+        <div class="email-meta">宛先: ${name} (${s.sub}) / 温度: ${s.stats[0].v} / AI生成日時: たった今</div>
+        <div class="email-subject">${subject}</div>
+        <div class="email-body-wrap"><div class="email-body">${body}</div></div>
+        <div class="email-actions">
+          <button class="btn btn-primary btn-sm" onclick="approveEmail(this)">✓ 承認・配信</button>
+          <button class="btn btn-outline btn-sm" onclick="editEmail(this)">✎ 編集</button>
+          <button class="btn btn-ghost btn-sm" onclick="rejectEmail(this)">✕ 配信停止</button>
+        </div>`;
+      list.insertBefore(newCard, list.firstChild);
+      showToast('新しいメッセージが追加されました', 'success');
+      // Update count card if exists
+      const cntEl = document.querySelector('#agent6 .summary-cards .card:nth-child(2) .card-value');
+      if (cntEl) { const cur = parseInt(cntEl.textContent.replace(/[^\d]/g,'')) || 1247; cntEl.innerHTML = (cur+1) + '<span class="unit">件</span>'; cntEl.classList.add('counter-up'); setTimeout(()=>cntEl.classList.remove('counter-up'),600); }
+    }, 1200);
   }
 
   // ===== Agent 6: Email actions =====
@@ -1506,6 +1829,144 @@ KDDIアイレットの△△と申します。
       btn.textContent = '💾 保存';
     }
   }
+
+  // ===== Charts (Chart.js) =====
+  const chartInstances = {};
+  function getChartColors() {
+    const isDark = document.body.classList.contains('dark');
+    return {
+      primary: isDark ? '#60a5fa' : '#2563eb',
+      primaryLight: isDark ? 'rgba(96,165,250,0.18)' : 'rgba(37,99,235,0.12)',
+      success: '#16a34a',
+      warning: '#f59e0b',
+      danger: '#dc2626',
+      gray: isDark ? '#475569' : '#cbd5e1',
+      text: isDark ? '#cbd5e1' : '#475569',
+      grid: isDark ? '#334155' : '#f1f5f9',
+    };
+  }
+
+  function makeChart(id, config) {
+    const ctx = document.getElementById(id);
+    if (!ctx) return;
+    if (chartInstances[id]) chartInstances[id].destroy();
+    chartInstances[id] = new Chart(ctx, config);
+  }
+
+  function renderAllCharts() {
+    const c = getChartColors();
+    const baseGrid = { color: c.grid };
+    const baseTicks = { color: c.text, font: { size: 10 } };
+    const baseLegend = { labels: { color: c.text, font: { size: 11 }, boxWidth: 12 } };
+
+    // ① マッチング推移
+    makeChart('chart-matching-trend', {
+      type: 'line',
+      data: {
+        labels: ['4/14','4/17','4/20','4/23','4/26','4/29','5/2','5/5','5/8','5/11','5/13'],
+        datasets: [
+          { label: '高スコア (80+)', data: [3,4,4,5,6,7,7,8,8,7,8], borderColor: c.success, backgroundColor: 'rgba(22,163,74,0.1)', tension: 0.35, fill: true, borderWidth: 2, pointRadius: 3 },
+          { label: '中スコア (60-79)', data: [12,14,15,16,18,19,21,22,24,24,26], borderColor: c.primary, backgroundColor: c.primaryLight, tension: 0.35, fill: true, borderWidth: 2, pointRadius: 3 },
+        ]
+      },
+      options: { responsive: true, maintainAspectRatio: false, scales: { x: { grid: baseGrid, ticks: baseTicks }, y: { grid: baseGrid, ticks: baseTicks, beginAtZero: true } }, plugins: { legend: baseLegend } }
+    });
+
+    // ① 業界別マッチ分布
+    makeChart('chart-industry-dist', {
+      type: 'doughnut',
+      data: {
+        labels: ['製造','金融','小売','物流','メディア','製薬','その他'],
+        datasets: [{ data: [14,9,7,5,4,2,1], backgroundColor: ['#2563eb','#16a34a','#f59e0b','#8b5cf6','#06b6d4','#ec4899','#94a3b8'], borderWidth: 0 }]
+      },
+      options: { responsive: true, maintainAspectRatio: false, cutout: '60%', plugins: { legend: { position: 'right', labels: { color: c.text, font: { size: 11 }, boxWidth: 10, padding: 8 } } } }
+    });
+
+    // ③ チーム稼働率推移
+    makeChart('chart-workload-trend', {
+      type: 'bar',
+      data: {
+        labels: ['4週前','3週前','2週前','先週','今週'],
+        datasets: [
+          { label: '過剰負荷 (>90%)', data: [2,3,4,3,3], backgroundColor: c.danger },
+          { label: '適正 (60-90%)', data: [5,6,6,7,7], backgroundColor: c.primary },
+          { label: '余力あり (<60%)', data: [8,6,5,5,5], backgroundColor: '#cbd5e1' },
+        ]
+      },
+      options: { responsive: true, maintainAspectRatio: false, scales: { x: { stacked: true, grid: baseGrid, ticks: baseTicks }, y: { stacked: true, grid: baseGrid, ticks: baseTicks, beginAtZero: true } }, plugins: { legend: baseLegend } }
+    });
+
+    // ③ スキルレーダー
+    makeChart('chart-skill-radar', {
+      type: 'radar',
+      data: {
+        labels: ['Google Cloud','データ基盤','AI駆動開発','ERP/SAP','業界知見','コンサル力'],
+        datasets: [
+          { label: '田中PM', data: [95,80,70,75,90,85], borderColor: c.primary, backgroundColor: 'rgba(37,99,235,0.15)', borderWidth: 2 },
+          { label: '佐藤PM', data: [75,70,85,60,80,90], borderColor: c.success, backgroundColor: 'rgba(22,163,74,0.15)', borderWidth: 2 },
+          { label: '伊藤コンサル', data: [70,75,95,55,75,80], borderColor: c.warning, backgroundColor: 'rgba(245,158,11,0.15)', borderWidth: 2 },
+        ]
+      },
+      options: { responsive: true, maintainAspectRatio: false, scales: { r: { angleLines: { color: c.grid }, grid: { color: c.grid }, pointLabels: { color: c.text, font: { size: 10 } }, ticks: { display: false, beginAtZero: true, max: 100 } } }, plugins: { legend: baseLegend } }
+    });
+
+    // ④ レコメンド採用率推移
+    makeChart('chart-rec-adoption', {
+      type: 'line',
+      data: {
+        labels: ['4/30','5/1','5/2','5/3','5/4','5/5','5/6','5/7','5/8','5/9','5/10','5/11','5/12','5/13'],
+        datasets: [
+          { label: '採用率 (%)', data: [42,45,48,50,52,55,57,58,60,61,62,63,63,64], borderColor: c.primary, backgroundColor: c.primaryLight, tension: 0.35, fill: true, borderWidth: 2, pointRadius: 2 },
+        ]
+      },
+      options: { responsive: true, maintainAspectRatio: false, scales: { x: { grid: baseGrid, ticks: baseTicks }, y: { grid: baseGrid, ticks: { ...baseTicks, callback: v => v + '%' }, beginAtZero: false, min: 30, max: 80 } }, plugins: { legend: baseLegend } }
+    });
+
+    // ⑥ ナーチャリングファネル
+    makeChart('chart-nurture-funnel', {
+      type: 'bar',
+      data: {
+        labels: ['配信','開封','反応','商談化','受注見込み'],
+        datasets: [
+          { label: '件数', data: [3742, 1421, 184, 52, 14], backgroundColor: [c.gray, c.primary, c.success, c.warning, c.danger], borderRadius: 6 }
+        ]
+      },
+      options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, scales: { x: { grid: baseGrid, ticks: baseTicks }, y: { grid: { display: false }, ticks: baseTicks } }, plugins: { legend: { display: false } } }
+    });
+
+    // ⑥ AI有無比較
+    makeChart('chart-nurture-compare', {
+      type: 'bar',
+      data: {
+        labels: ['開封率','反応率','商談化率'],
+        datasets: [
+          { label: '過去 (AIなし)', data: [22, 4.5, 11], backgroundColor: c.gray, borderRadius: 4 },
+          { label: '現在 (AIあり)', data: [38, 12.9, 28.3], backgroundColor: c.primary, borderRadius: 4 },
+        ]
+      },
+      options: { responsive: true, maintainAspectRatio: false, scales: { x: { grid: baseGrid, ticks: baseTicks }, y: { grid: baseGrid, ticks: { ...baseTicks, callback: v => v + '%' }, beginAtZero: true } }, plugins: { legend: baseLegend } }
+    });
+  }
+  window.renderAllCharts = renderAllCharts;
+  // Initial render
+  setTimeout(renderAllCharts, 100);
+
+  // ===== Auto live updates (D: real-time feel) =====
+  // 30秒ごとに「新規マッチが見つかりました」風の通知を出す
+  let liveCounter = 3;
+  setInterval(() => {
+    if (Math.random() > 0.5) {
+      liveCounter++;
+      const bell = document.getElementById('notif-count');
+      if (bell) { bell.textContent = liveCounter; bell.classList.add('counter-up'); setTimeout(()=>bell.classList.remove('counter-up'),600); }
+    }
+  }, 25000);
+
+  // ===== Chat typing effect =====
+  // Override nextChatStep to add typing animation
+  const originalNextChatStep = nextChatStep;
+  // (renderAssist は既存のものを使う)
+
 </script>
 
 </body>
