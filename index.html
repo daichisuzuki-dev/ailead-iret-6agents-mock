@@ -1,0 +1,1512 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ailead AI Agents — KDDIアイレット様向け</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', Meiryo, sans-serif; background: #f5f6fa; color: #334155; display: flex; min-height: 100vh; }
+  a { color: inherit; text-decoration: none; }
+
+  /* ===== Sidebar ===== */
+  .sidebar { width: 240px; background: #fff; border-right: 1px solid #e8e8e8; display: flex; flex-direction: column; padding: 24px 0; position: fixed; height: 100vh; z-index: 10; }
+  .sidebar-logo { padding: 0 20px; margin-bottom: 28px; display: flex; align-items: center; gap: 10px; }
+  .sidebar-logo .logo-icon { width: 32px; height: 32px; background: #2563eb; border-radius: 8px; display:flex; align-items:center; justify-content:center; color:#fff; font-weight: 800; font-size: 18px; }
+  .sidebar-logo .logo-text { font-size: 18px; font-weight: 700; color: #2563eb; }
+  .sidebar-logo .logo-sub { font-size: 10px; color: #94a3b8; display: block; margin-top: 2px; letter-spacing: 0.3px; }
+  .sidebar-section-label { font-size: 10px; color: #94a3b8; font-weight: 700; letter-spacing: 0.5px; padding: 8px 20px; text-transform: uppercase; }
+  .sidebar-nav { list-style: none; margin-bottom: 8px; }
+  .sidebar-nav li { padding: 10px 20px; font-size: 13px; color: #64748b; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: all 0.15s; }
+  .sidebar-nav li.active { color: #2563eb; background: #eff6ff; border-right: 3px solid #2563eb; font-weight: 600; }
+  .sidebar-nav li:hover:not(.active) { background: #f8fafc; color: #334155; }
+  .sidebar-nav .num { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; background: #e2e8f0; color: #64748b; border-radius: 50%; font-size: 11px; font-weight: 700; }
+  .sidebar-nav li.active .num { background: #2563eb; color: #fff; }
+  .sidebar-bottom { margin-top: auto; padding: 16px 20px 0; border-top: 1px solid #f1f5f9; }
+  .sidebar-client { display: flex; align-items: center; gap: 8px; padding: 8px 10px; background: #f8fafc; border-radius: 8px; }
+  .sidebar-client-icon { width: 28px; height: 28px; background: #1e40af; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 10px; font-weight: 700; }
+  .sidebar-client-name { font-size: 12px; color: #334155; font-weight: 600; }
+  .sidebar-client-sub { font-size: 10px; color: #94a3b8; }
+
+  /* ===== Main ===== */
+  .main { margin-left: 240px; flex: 1; padding: 28px 36px; }
+  .page { display: none; }
+  .page.active { display: block; }
+  .page-header { margin-bottom: 24px; }
+  .page-title { font-size: 22px; font-weight: 700; color: #1e293b; margin-bottom: 6px; }
+  .page-sub { font-size: 13px; color: #64748b; }
+  .page-badge { display: inline-block; background: #dbeafe; color: #2563eb; font-size: 10px; font-weight: 700; padding: 3px 10px; border-radius: 10px; letter-spacing: 0.4px; margin-bottom: 8px; }
+
+  /* Summary cards */
+  .summary-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 24px; }
+  .card { background: #fff; border-radius: 12px; padding: 18px 22px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+  .card-label { font-size: 11px; color: #94a3b8; margin-bottom: 6px; font-weight: 500; }
+  .card-value { font-size: 28px; font-weight: 700; color: #1e293b; line-height: 1.1; }
+  .card-value .unit { font-size: 13px; font-weight: 400; color: #94a3b8; margin-left: 2px; }
+  .card-trend { font-size: 11px; margin-top: 4px; }
+  .trend-up { color: #16a34a; }
+  .trend-down { color: #dc2626; }
+
+  /* Section */
+  .section { background: #fff; border-radius: 12px; padding: 22px 26px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); margin-bottom: 20px; }
+  .section-title { font-size: 15px; font-weight: 700; color: #1e293b; margin-bottom: 16px; display:flex; align-items:center; gap: 8px; }
+  .section-title .ai-tag { font-size: 9px; font-weight: 700; background: #2563eb; color: #fff; padding: 2px 6px; border-radius: 4px; letter-spacing: 0.4px; }
+  .section-sub { font-size: 12px; color: #94a3b8; margin-bottom: 14px; font-weight: 400; }
+
+  /* Table */
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead th { text-align: left; padding: 10px 12px; color: #94a3b8; font-weight: 500; font-size: 11px; border-bottom: 1px solid #f1f5f9; white-space: nowrap; text-transform: uppercase; letter-spacing: 0.4px; }
+  tbody td { padding: 12px; border-bottom: 1px solid #f8fafc; }
+  tbody tr:hover { background: #fafbfd; }
+  tbody tr:last-child td { border-bottom: none; }
+
+  /* Score badges */
+  .score-badge { display:inline-flex; align-items:center; justify-content:center; min-width: 50px; padding: 4px 10px; border-radius: 6px; font-weight: 700; font-size: 12px; }
+  .score-high { background: #dcfce7; color: #16a34a; }
+  .score-mid { background: #fef3c7; color: #d97706; }
+  .score-low { background: #fee2e2; color: #dc2626; }
+
+  /* Status badges */
+  .pill { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+  .pill-blue { background: #dbeafe; color: #2563eb; }
+  .pill-green { background: #dcfce7; color: #16a34a; }
+  .pill-yellow { background: #fef3c7; color: #d97706; }
+  .pill-orange { background: #fed7aa; color: #ea580c; }
+  .pill-red { background: #fee2e2; color: #dc2626; }
+  .pill-gray { background: #f1f5f9; color: #64748b; }
+
+  /* AI insight */
+  .ai-insight { background: #eff6ff; border-radius: 10px; padding: 14px 16px; margin-bottom: 10px; display: flex; gap: 10px; align-items: flex-start; }
+  .ai-insight-icon { width: 24px; height: 24px; background: #2563eb; color: #fff; border-radius: 50%; display:inline-flex; align-items:center; justify-content:center; font-size: 12px; font-weight: 700; flex-shrink: 0; }
+  .ai-insight-text { font-size: 13px; color: #334155; line-height: 1.7; }
+
+  /* Two columns */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+
+  /* Hypothesis card */
+  .hyp-card { background: #f8fafc; border-radius: 10px; padding: 16px 18px; border-left: 3px solid #2563eb; }
+  .hyp-card.alt { border-left-color: #94a3b8; }
+  .hyp-card-num { font-size: 10px; color: #2563eb; font-weight: 700; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .hyp-card-title { font-size: 14px; font-weight: 700; color: #1e293b; margin-bottom: 6px; }
+  .hyp-card-body { font-size: 12px; color: #475569; line-height: 1.6; }
+
+  /* Stakeholder card */
+  .stake-card { display: flex; align-items: center; gap: 12px; padding: 12px 14px; background: #f8fafc; border-radius: 10px; margin-bottom: 8px; }
+  .stake-avatar { width: 36px; height: 36px; background: #2563eb; color: #fff; border-radius: 50%; display:inline-flex; align-items:center; justify-content:center; font-weight: 700; font-size: 12px; flex-shrink: 0; }
+  .stake-avatar.cool { background: #94a3b8; }
+  .stake-avatar.warm { background: #f59e0b; }
+  .stake-info { flex: 1; min-width: 0; }
+  .stake-name { font-size: 13px; font-weight: 600; color: #1e293b; }
+  .stake-role { font-size: 11px; color: #94a3b8; }
+  .stake-meta { display: flex; gap: 6px; margin-top: 4px; flex-wrap: wrap; }
+
+  /* Real-time chat simulation */
+  .chat-pane { display: grid; grid-template-columns: 1fr 360px; gap: 16px; }
+  .chat-main { background: #f8fafc; border-radius: 10px; padding: 18px; min-height: 360px; }
+  .chat-bubble { background: #fff; padding: 10px 14px; border-radius: 12px; font-size: 13px; color: #475569; margin-bottom: 10px; max-width: 80%; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
+  .chat-bubble.you { background: #2563eb; color: #fff; margin-left: auto; }
+  .chat-speaker { font-size: 10px; color: #94a3b8; margin-bottom: 4px; font-weight: 500; }
+  .chat-row { margin-bottom: 14px; }
+
+  .assist-pane { background: #fff; border: 1px solid #dbeafe; border-radius: 10px; padding: 14px 16px; }
+  .assist-title { font-size: 11px; color: #2563eb; font-weight: 700; letter-spacing: 0.4px; margin-bottom: 12px; display:flex; align-items:center; gap:6px; }
+  .assist-dot { width: 6px; height: 6px; background: #2563eb; border-radius: 50%; animation: blink 1.5s infinite; }
+  @keyframes blink { 50% { opacity: 0.3; } }
+  .assist-block { padding: 10px 0; border-bottom: 1px solid #f1f5f9; }
+  .assist-block:last-child { border-bottom: none; }
+  .assist-label { font-size: 10px; color: #94a3b8; font-weight: 600; letter-spacing: 0.4px; margin-bottom: 6px; text-transform: uppercase; }
+  .assist-text { font-size: 12px; color: #334155; line-height: 1.6; }
+  .assist-quote { font-size: 12px; color: #2563eb; font-weight: 500; background: #eff6ff; padding: 6px 10px; border-radius: 6px; margin-top: 4px; }
+
+  /* Lead temperature heat */
+  .temp-row { display: flex; align-items: center; gap: 14px; padding: 12px 0; border-bottom: 1px solid #f1f5f9; }
+  .temp-row:last-child { border-bottom: none; }
+  .temp-bar { flex: 1; height: 24px; background: #f1f5f9; border-radius: 12px; overflow: hidden; position: relative; }
+  .temp-fill { height: 100%; border-radius: 12px; display:flex; align-items:center; padding-left: 10px; color: #fff; font-size: 11px; font-weight: 700; }
+  .temp-hot { background: linear-gradient(90deg, #dc2626, #f59e0b); }
+  .temp-warm { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+  .temp-cool { background: linear-gradient(90deg, #94a3b8, #cbd5e1); color: #475569; }
+  .temp-label { width: 90px; font-size: 13px; font-weight: 600; color: #334155; }
+  .temp-count { width: 90px; text-align: right; font-size: 13px; color: #1e293b; font-weight: 700; }
+  .temp-rate { width: 80px; text-align: right; font-size: 11px; color: #94a3b8; }
+
+  /* Mini bar for assignment workload */
+  .workload-bar { height: 6px; background: #f1f5f9; border-radius: 3px; overflow: hidden; margin-top: 4px; }
+  .workload-fill { height: 100%; background: #2563eb; border-radius: 3px; }
+  .workload-fill.over { background: #dc2626; }
+
+  /* Email preview */
+  .email-card { background: #f8fafc; border-radius: 10px; padding: 16px; border: 1px solid #f1f5f9; }
+  .email-meta { font-size: 11px; color: #94a3b8; margin-bottom: 8px; }
+  .email-subject { font-size: 14px; font-weight: 700; color: #1e293b; margin-bottom: 10px; }
+  .email-body { font-size: 12px; color: #475569; line-height: 1.7; white-space: pre-wrap; }
+
+  /* Footer note */
+  .footnote { font-size: 11px; color: #94a3b8; padding: 12px 0 0; text-align: right; }
+
+  /* ===== Interactive UI ===== */
+  /* Detail Panel (slides from right) */
+  .overlay { display: none; position: fixed; inset: 0; background: rgba(15,23,42,0.4); z-index: 90; opacity: 0; transition: opacity 0.2s; }
+  .overlay.active { display: block; opacity: 1; }
+  .detail-panel { position: fixed; top: 0; right: -640px; width: 600px; max-width: 100vw; height: 100vh; background: #fff; box-shadow: -8px 0 32px rgba(0,0,0,0.12); z-index: 100; overflow-y: auto; transition: right 0.3s cubic-bezier(0.22,1,0.36,1); }
+  .detail-panel.active { right: 0; }
+  .detail-header { padding: 24px 28px; border-bottom: 1px solid #f1f5f9; display:flex; justify-content:space-between; align-items:flex-start; position: sticky; top: 0; background: #fff; z-index: 2; }
+  .detail-header-title { font-size: 20px; font-weight: 700; color: #1e293b; }
+  .detail-header-sub { font-size: 12px; color: #64748b; margin-top: 4px; }
+  .detail-close { background: #f1f5f9; border: none; width: 30px; height: 30px; border-radius: 6px; cursor: pointer; font-size: 16px; color: #64748b; }
+  .detail-close:hover { background: #e2e8f0; }
+  .detail-body { padding: 24px 28px; }
+  .detail-block { margin-bottom: 22px; }
+  .detail-block-title { font-size: 11px; color: #2563eb; font-weight: 700; letter-spacing: 0.5px; margin-bottom: 10px; text-transform: uppercase; }
+  .detail-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 18px; }
+  .detail-stat { background: #f8fafc; border-radius: 8px; padding: 12px; text-align: center; }
+  .detail-stat-label { font-size: 10px; color: #94a3b8; margin-bottom: 4px; }
+  .detail-stat-value { font-size: 18px; font-weight: 700; color: #1e293b; }
+  .detail-timeline { border-left: 2px solid #e2e8f0; padding-left: 14px; margin-left: 6px; }
+  .detail-timeline-item { margin-bottom: 14px; position: relative; }
+  .detail-timeline-item::before { content: ''; position: absolute; left: -21px; top: 4px; width: 10px; height: 10px; background: #2563eb; border-radius: 50%; border: 2px solid #fff; }
+  .detail-timeline-date { font-size: 11px; color: #94a3b8; font-weight: 600; }
+  .detail-timeline-text { font-size: 13px; color: #334155; margin-top: 2px; line-height: 1.6; }
+
+  /* Clickable row */
+  .clickable { cursor: pointer; transition: background 0.15s; }
+  .clickable:hover { background: #eff6ff !important; }
+
+  /* Button styles */
+  .btn { padding: 9px 18px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; border: 1px solid transparent; transition: all 0.15s; display: inline-flex; align-items: center; gap: 6px; }
+  .btn-primary { background: #2563eb; color: #fff; border-color: #2563eb; }
+  .btn-primary:hover { background: #1d4ed8; }
+  .btn-primary:disabled { background: #94a3b8; border-color: #94a3b8; cursor: not-allowed; }
+  .btn-outline { background: #fff; color: #2563eb; border-color: #2563eb; }
+  .btn-outline:hover { background: #eff6ff; }
+  .btn-ghost { background: transparent; color: #64748b; border-color: #e2e8f0; }
+  .btn-ghost:hover { background: #f8fafc; }
+  .btn-sm { padding: 6px 12px; font-size: 11px; }
+
+  /* Form */
+  .form-row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+  .form-label { font-size: 12px; color: #64748b; font-weight: 600; }
+  select, input.text-input { padding: 9px 14px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 13px; background: #fff; color: #334155; outline: none; min-width: 200px; }
+  select:focus, input.text-input:focus { border-color: #2563eb; }
+
+  /* Loading spinner */
+  .spinner-wrap { display: flex; align-items: center; justify-content: center; padding: 60px 20px; flex-direction: column; gap: 16px; }
+  .spinner { width: 40px; height: 40px; border: 3px solid #e2e8f0; border-top-color: #2563eb; border-radius: 50%; animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .spinner-text { font-size: 13px; color: #64748b; }
+  .spinner-substep { font-size: 11px; color: #94a3b8; }
+
+  /* Fade in animation */
+  .fade-in { animation: fadeIn 0.4s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  .hidden { display: none !important; }
+
+  /* Toast */
+  .toast { position: fixed; bottom: 24px; right: 24px; background: #1e293b; color: #fff; padding: 12px 18px; border-radius: 8px; font-size: 13px; box-shadow: 0 8px 24px rgba(0,0,0,0.18); z-index: 200; opacity: 0; transform: translateY(10px); transition: all 0.2s; }
+  .toast.show { opacity: 1; transform: translateY(0); }
+  .toast.success { background: #16a34a; }
+
+  /* Search */
+  .search-box { padding: 8px 14px 8px 36px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 13px; background: #fff url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2'><circle cx='11' cy='11' r='8'/><line x1='21' y1='21' x2='16.65' y2='16.65'/></svg>") no-repeat 12px center; min-width: 240px; outline: none; }
+  .search-box:focus { border-color: #2563eb; }
+
+  /* Approve toast in agent6 */
+  .email-card { position: relative; transition: opacity 0.3s, transform 0.3s; }
+  .email-card.approved { opacity: 0.5; }
+  .email-card.approved::after { content: '✓ 配信予約しました'; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); background: #16a34a; color: #fff; padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; }
+  .email-card.rejected { opacity: 0.3; }
+  .email-card.editing textarea { width: 100%; min-height: 200px; padding: 10px; border: 2px solid #2563eb; border-radius: 8px; font-family: inherit; font-size: 12px; color: #475569; line-height: 1.7; resize: vertical; outline: none; }
+  .email-actions { display: flex; gap: 6px; margin-top: 10px; }
+
+  /* Chat step button */
+  .chat-controls { margin-top: 12px; display: flex; gap: 8px; align-items: center; }
+
+  /* Agent 2 result */
+  #agent2-doc { transition: opacity 0.3s; }
+  #agent2-form { background: #fff; border-radius: 12px; padding: 22px 26px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); margin-bottom: 18px; }
+  .form-helper { font-size: 12px; color: #94a3b8; margin-top: 4px; }
+
+  /* Workload edit in agent 3 */
+  .approve-btn { background: #2563eb; color: #fff; border: none; padding: 6px 14px; border-radius: 6px; font-size: 11px; cursor: pointer; font-weight: 600; }
+  .approve-btn:hover { background: #1d4ed8; }
+  tr.approved-row { background: #f0fdf4 !important; }
+  tr.approved-row td:last-child::after { content: ''; }
+
+  /* Source tags */
+  .src-tag { display: inline-block; font-size: 10px; padding: 2px 8px; border-radius: 4px; background: #f1f5f9; color: #64748b; margin-right: 4px; }
+
+  /* Document layout for ②事前準備 */
+  .doc-header { padding: 16px 20px; background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); color: #fff; border-radius: 10px 10px 0 0; }
+  .doc-header-title { font-size: 16px; font-weight: 700; }
+  .doc-header-sub { font-size: 12px; opacity: 0.9; margin-top: 2px; }
+  .doc-body { padding: 20px; }
+  .doc-section { margin-bottom: 18px; }
+  .doc-section-title { font-size: 12px; color: #2563eb; font-weight: 700; letter-spacing: 0.5px; margin-bottom: 8px; text-transform: uppercase; }
+  .doc-block { background: #f8fafc; border-radius: 8px; padding: 12px 14px; font-size: 13px; color: #334155; line-height: 1.7; margin-bottom: 6px; }
+  .doc-block strong { color: #1e293b; }
+  .question-list { font-size: 13px; color: #334155; line-height: 1.9; }
+  .question-list li { padding-left: 8px; }
+
+</style>
+</head>
+<body>
+
+<!-- ===== Sidebar ===== -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon">a</div>
+    <div>
+      <span class="logo-text">ailead</span>
+      <span class="logo-sub">AI AGENTS</span>
+    </div>
+  </div>
+
+  <div class="sidebar-section-label">AIエージェント</div>
+  <ul class="sidebar-nav">
+    <li class="active" onclick="show('agent1')"><span class="num">①</span>顧客マッチング</li>
+    <li onclick="show('agent2')"><span class="num">②</span>事前準備</li>
+    <li onclick="show('agent3')"><span class="num">③</span>案件割り振り</li>
+    <li onclick="show('agent4')"><span class="num">④</span>リアルタイムレコメンド</li>
+    <li onclick="show('agent5')"><span class="num">⑤</span>ステークホルダー管理</li>
+    <li onclick="show('agent6')"><span class="num">⑥</span>ナーチャリング自動化</li>
+  </ul>
+
+  <div class="sidebar-bottom">
+    <div class="sidebar-section-label" style="padding-left:0;padding-right:0;">クライアント</div>
+    <div class="sidebar-client">
+      <div class="sidebar-client-icon">KI</div>
+      <div>
+        <div class="sidebar-client-name">KDDIアイレット様</div>
+        <div class="sidebar-client-sub">AI Cloud Sales本部</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- ===== Main ===== -->
+<main class="main">
+
+  <!-- ============================== -->
+  <!-- ① 顧客マッチング -->
+  <!-- ============================== -->
+  <section class="page active" id="agent1">
+    <div class="page-header">
+      <div class="page-badge">AI AGENT #01</div>
+      <h1 class="page-title">顧客マッチング</h1>
+      <p class="page-sub">弊社実績データ × 案件特性 × お客様プロファイルを掛け合わせ、攻めるべき顧客を優先度順に提示します</p>
+    </div>
+
+    <!-- Summary cards -->
+    <div class="summary-cards">
+      <div class="card">
+        <div class="card-label">本日のマッチング候補</div>
+        <div class="card-value">42<span class="unit">社</span></div>
+        <div class="card-trend trend-up">▲ 12社 (前日比)</div>
+      </div>
+      <div class="card">
+        <div class="card-label">高スコア企業 (80以上)</div>
+        <div class="card-value">8<span class="unit">社</span></div>
+        <div class="card-trend trend-up">即アプローチ推奨</div>
+      </div>
+      <div class="card">
+        <div class="card-label">マッチ平均スコア</div>
+        <div class="card-value">67.2<span class="unit">/100</span></div>
+        <div class="card-trend">前週: 64.5</div>
+      </div>
+      <div class="card">
+        <div class="card-label">本日のアサイン推薦数</div>
+        <div class="card-value">12<span class="unit">件</span></div>
+      </div>
+    </div>
+
+    <!-- AI Insight -->
+    <div class="section">
+      <div class="section-title"><span class="ai-tag">AI</span>本日の気づき</div>
+      <div class="ai-insight">
+        <div class="ai-insight-icon">1</div>
+        <div class="ai-insight-text"><strong>製造業×SAP移行</strong> の案件が直近2週間で急増。過去の弊社受注パターンから、3名のSAPコンサル経験者をアサインすると受注確度が1.8倍になります。</div>
+      </div>
+      <div class="ai-insight">
+        <div class="ai-insight-icon">2</div>
+        <div class="ai-insight-text"><strong>○○HD様(マッチスコア92)</strong> は10/15のIRで「Google Cloud移行検討中」と発表。弊社のGoogle Cloud Partner Award受賞は強い差別化材料になります。</div>
+      </div>
+      <div class="ai-insight">
+        <div class="ai-insight-icon">3</div>
+        <div class="ai-insight-text"><strong>大手金融3社</strong> でgaipack型導入の動きあり。コンプライアンス要件の知見が豊富な田中PMをアサイン推奨。</div>
+      </div>
+    </div>
+
+    <!-- Matching table -->
+    <div class="section">
+      <div class="section-title"><span class="ai-tag">AI</span>マッチング候補一覧 (Top 8)</div>
+      <div class="section-sub">行をクリックで詳細を表示 / スコアは「弊社実績との適合 × お客様の動き × 案件規模」を総合判定</div>
+
+      <div style="margin-bottom:14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+        <input type="text" class="search-box" id="agent1-search" placeholder="企業・業界・案件で検索...">
+        <button class="btn btn-ghost btn-sm" onclick="filterAgent1('all')">すべて</button>
+        <button class="btn btn-ghost btn-sm" onclick="filterAgent1('high')">高スコア (80+)</button>
+        <button class="btn btn-ghost btn-sm" onclick="filterAgent1('mid')">中スコア (60-79)</button>
+      </div>
+
+      <table id="agent1-table">
+        <thead>
+          <tr>
+            <th>マッチスコア</th>
+            <th>対象企業</th>
+            <th>業界</th>
+            <th>想定案件</th>
+            <th>マッチ理由 (AI抽出)</th>
+            <th>推奨アサイン</th>
+            <th>緊急度</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="clickable" data-score="92" data-tier="high" data-company="S社 HD" onclick="showCompanyDetail('s-hd')">
+            <td><span class="score-badge score-high">92</span></td>
+            <td><strong>S社 HD</strong></td>
+            <td>製造</td>
+            <td>Google Cloud移行 (推定 2-3億)</td>
+            <td>IRで移行検討公表 × 弊社GCP受賞 × 製造業実績12件</td>
+            <td>田中PM / 山本SE</td>
+            <td><span class="pill pill-red">高</span></td>
+          </tr>
+          <tr class="clickable" data-score="87" data-tier="high" data-company="M社" onclick="showCompanyDetail('m')">
+            <td><span class="score-badge score-high">87</span></td>
+            <td><strong>M社</strong></td>
+            <td>金融</td>
+            <td>gaipack導入 (推定 1.5億)</td>
+            <td>Q4予算消化期 × 金融コンプラ知見 × 類似事例3件</td>
+            <td>佐藤PM / 高橋コンサル</td>
+            <td><span class="pill pill-red">高</span></td>
+          </tr>
+          <tr class="clickable" data-score="85" data-tier="high" data-company="R社" onclick="showCompanyDetail('r')">
+            <td><span class="score-badge score-high">85</span></td>
+            <td><strong>R社</strong></td>
+            <td>小売</td>
+            <td>データ基盤再構築 (推定 1.2億)</td>
+            <td>BigQuery実績 × 競合敗北案件のリベンジ機会</td>
+            <td>鈴木PM</td>
+            <td><span class="pill pill-orange">中</span></td>
+          </tr>
+          <tr class="clickable" data-score="82" data-tier="high" data-company="L社" onclick="showCompanyDetail('l')">
+            <td><span class="score-badge score-high">82</span></td>
+            <td><strong>L社</strong></td>
+            <td>物流</td>
+            <td>AI駆動開発 (推定 8000万)</td>
+            <td>新規DX部署立ち上げ × 弊社AI駆動開発プレス露出</td>
+            <td>伊藤コンサル / 中村SE</td>
+            <td><span class="pill pill-orange">中</span></td>
+          </tr>
+          <tr class="clickable" data-score="76" data-tier="mid" data-company="U社" onclick="showCompanyDetail('u')">
+            <td><span class="score-badge score-mid">76</span></td>
+            <td><strong>U社</strong></td>
+            <td>メディア</td>
+            <td>クラウド設計支援 (推定 6000万)</td>
+            <td>過去問合せあり × Web露出増加</td>
+            <td>木村SE</td>
+            <td><span class="pill pill-yellow">低</span></td>
+          </tr>
+          <tr class="clickable" data-score="72" data-tier="mid" data-company="N社 グループ" onclick="showCompanyDetail('n')">
+            <td><span class="score-badge score-mid">72</span></td>
+            <td><strong>N社 グループ</strong></td>
+            <td>製造</td>
+            <td>ERPコンサル (推定 1.8億)</td>
+            <td>決算で利益率改善宣言 × 競合の値上げ動向</td>
+            <td>田中PM</td>
+            <td><span class="pill pill-yellow">低</span></td>
+          </tr>
+          <tr class="clickable" data-score="68" data-tier="mid" data-company="P社" onclick="showCompanyDetail('p')">
+            <td><span class="score-badge score-mid">68</span></td>
+            <td><strong>P社</strong></td>
+            <td>製薬</td>
+            <td>データレイク (推定 9000万)</td>
+            <td>規制対応の動き × Google Cloud志向</td>
+            <td>山本SE / 高橋コンサル</td>
+            <td><span class="pill pill-gray">監視</span></td>
+          </tr>
+          <tr class="clickable" data-score="65" data-tier="mid" data-company="F社" onclick="showCompanyDetail('f')">
+            <td><span class="score-badge score-mid">65</span></td>
+            <td><strong>F社</strong></td>
+            <td>小売</td>
+            <td>AIエージェント検討 (推定 5000万)</td>
+            <td>業界の早期検討組 × 弊社事例ニーズ高</td>
+            <td>伊藤コンサル</td>
+            <td><span class="pill pill-gray">監視</span></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="footnote">最終更新: 2026/5/13 14:30 / 次回更新: 翌日 8:00</div>
+    </div>
+  </section>
+
+  <!-- ============================== -->
+  <!-- ② 事前準備 -->
+  <!-- ============================== -->
+  <section class="page" id="agent2">
+    <div class="page-header">
+      <div class="page-badge">AI AGENT #02</div>
+      <h1 class="page-title">事前準備</h1>
+      <p class="page-sub">商談前にAIが業績資料・公開情報・過去商談データを横断分析。仮説3案・想定質問・関連事例を30分以内にお届けします</p>
+    </div>
+
+    <!-- Interactive form -->
+    <div id="agent2-form">
+      <div style="font-size:14px;font-weight:700;color:#1e293b;margin-bottom:12px;">新しい商談の準備をAIに依頼</div>
+      <div class="form-row">
+        <label class="form-label">対象企業</label>
+        <select id="agent2-company">
+          <option value="">企業を選択...</option>
+          <option value="s-hd" selected>S社 HD (製造 / Google Cloud移行)</option>
+          <option value="m">M社 (金融 / gaipack導入)</option>
+          <option value="r">R社 (小売 / データ基盤再構築)</option>
+          <option value="l">L社 (物流 / AI駆動開発)</option>
+        </select>
+        <label class="form-label">商談日時</label>
+        <input class="text-input" type="text" value="2026/5/15(木) 14:00" style="min-width:160px;">
+        <button class="btn btn-primary" id="agent2-generate" onclick="generateAgent2()">▶ AIが準備する</button>
+      </div>
+      <div class="form-helper">業績資料・IR・公開情報・過去商談データを横断して、約20-30分の作業を自動化します</div>
+    </div>
+
+    <!-- Loading -->
+    <div id="agent2-loading" class="section hidden">
+      <div class="spinner-wrap">
+        <div class="spinner"></div>
+        <div class="spinner-text" id="agent2-loading-text">AIが業績資料を読み込み中...</div>
+        <div class="spinner-substep" id="agent2-loading-sub">直近のIR・決算短信を分析しています</div>
+      </div>
+    </div>
+
+    <!-- Summary cards (hidden initially) -->
+    <div class="summary-cards hidden" id="agent2-results">
+      <div class="card">
+        <div class="card-label">本日の準備完了商談</div>
+        <div class="card-value">23<span class="unit">件</span></div>
+        <div class="card-trend trend-up">▲ 9件 (前日比)</div>
+      </div>
+      <div class="card">
+        <div class="card-label">平均生成時間</div>
+        <div class="card-value">22<span class="unit">分</span></div>
+        <div class="card-trend trend-up">▲ 5分短縮</div>
+      </div>
+      <div class="card">
+        <div class="card-label">活用率 (営業)</div>
+        <div class="card-value">87<span class="unit">%</span></div>
+      </div>
+      <div class="card">
+        <div class="card-label">準備済→受注 改善</div>
+        <div class="card-value">+18<span class="unit">pt</span></div>
+        <div class="card-trend trend-up">未準備比</div>
+      </div>
+    </div>
+
+    <!-- Document output -->
+    <div class="section hidden" id="agent2-doc" style="padding:0;overflow:hidden;">
+      <div class="doc-header">
+        <div class="doc-header-title">商談準備シート — S社 HD様 / 初回商談 2026/5/15(木) 14:00</div>
+        <div class="doc-header-sub">対応営業: 田中PM, 山本SE / 案件想定: Google Cloud移行 (2-3億規模)</div>
+      </div>
+      <div class="doc-body">
+
+        <div class="doc-section">
+          <div class="doc-section-title">事業状況サマリ (AI自動抽出)</div>
+          <div class="doc-block">
+            <strong>直近の動き:</strong> 2026/4/22のIRで「2027年度までに基幹システムをマルチクラウド化する方針」と発表。現在はオンプレ+AWS構成、CIO島田氏が中期計画でGoogle Cloud追加検討に言及。
+          </div>
+          <div class="doc-block">
+            <strong>業績ハイライト:</strong> 売上高8,420億(YoY+5.2%) / 営業利益率8.1%(YoY-0.4pt)。コスト削減方針の中で「ITコスト構造改革」を重点項目に設定。
+          </div>
+          <div class="doc-block">
+            <strong>競合動向:</strong> 同業A社が2025年にAWS→GCPハイブリッド移行を実施。本件意思決定に影響する可能性あり。
+          </div>
+        </div>
+
+        <div class="doc-section">
+          <div class="doc-section-title">想定課題 × 仮説3案</div>
+          <div class="three-col">
+            <div class="hyp-card">
+              <div class="hyp-card-num">仮説 A — 推奨</div>
+              <div class="hyp-card-title">コスト最適化が本丸</div>
+              <div class="hyp-card-body">利益率低下を受け、CIO島田氏は「移行による恒常コスト削減」をミッションとして抱えている可能性高。<br>→ Google Cloudの長期コミット割引+運用代行のセット提案で刺さる。</div>
+            </div>
+            <div class="hyp-card alt">
+              <div class="hyp-card-num">仮説 B</div>
+              <div class="hyp-card-title">レガシー脱却が真の課題</div>
+              <div class="hyp-card-body">オンプレ運用の人材不足、メインフレーム保守期限への対応が現場負担に。<br>→ AI駆動開発+モダナイゼーション伴走のストーリーが効く可能性。</div>
+            </div>
+            <div class="hyp-card alt">
+              <div class="hyp-card-num">仮説 C</div>
+              <div class="hyp-card-title">AIユースケース内製化</div>
+              <div class="hyp-card-body">業界の生成AI活用機運、競合A社のAI研究所設立等を踏まえ、「Google Cloudでgaipack型」需要の可能性。<br>→ 初回はやや先走り、2回目以降で持ち出す。</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="doc-section">
+          <div class="doc-section-title">当日聞きたい質問 (優先順位順)</div>
+          <ol class="question-list">
+            <li>マルチクラウド化の決定背景は、コスト最適化と業務継続性、どちらに重きを置かれていますか?</li>
+            <li>現状のAWS環境について、「ここは満足」「ここは課題」と感じている点をお聞かせいただけますか?</li>
+            <li>移行決定までの想定スケジュールと、意思決定の関係者を教えてください。</li>
+            <li>過去にクラウド移行を経験されたメンバーは社内にいらっしゃいますか?</li>
+            <li>パートナー選定で最も重視される要素は何でしょうか? (実績/価格/伴走/技術)</li>
+          </ol>
+        </div>
+
+        <div class="doc-section">
+          <div class="doc-section-title">関連する弊社事例</div>
+          <div class="doc-block">
+            <span class="pill pill-blue">事例1</span> <strong>製造大手T社</strong> — オンプレ+AWS → GCP移行を1年で完遂、運用コスト32%削減 / 担当: 田中PM
+          </div>
+          <div class="doc-block">
+            <span class="pill pill-blue">事例2</span> <strong>同業K社</strong> — マルチクラウド戦略+ガバナンス設計 / Q&A資料あり / 担当: 山本SE
+          </div>
+          <div class="doc-block">
+            <span class="pill pill-blue">事例3</span> <strong>S社過去案件</strong> — 2024年に別部門でクラウド検討の問合せあり (失注、価格面) / 担当: 佐藤
+          </div>
+        </div>
+
+        <div class="doc-section">
+          <div class="doc-section-title">注意点 (AI抽出)</div>
+          <div class="ai-insight">
+            <div class="ai-insight-icon">!</div>
+            <div class="ai-insight-text">CIO島田氏は前職でガバナンス系の発表多数。「移行後の統制」を必ず質問してくる傾向。事前に運用代行のメニュー資料を準備推奨。</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================== -->
+  <!-- ③ 案件割り振り -->
+  <!-- ============================== -->
+  <section class="page" id="agent3">
+    <div class="page-header">
+      <div class="page-badge">AI AGENT #03</div>
+      <h1 class="page-title">案件割り振り</h1>
+      <p class="page-sub">スキル・稼働率・過去成功パターン・お客様との相性を加味し、案件ごとに最適な営業をAIが推薦します</p>
+    </div>
+
+    <!-- Summary cards -->
+    <div class="summary-cards">
+      <div class="card">
+        <div class="card-label">未割振の新規リード</div>
+        <div class="card-value">38<span class="unit">件</span></div>
+        <div class="card-trend trend-down">▼ 即配分推奨</div>
+      </div>
+      <div class="card">
+        <div class="card-label">本日の自動推薦件数</div>
+        <div class="card-value">29<span class="unit">件</span></div>
+        <div class="card-trend trend-up">マネージャ承認待ち</div>
+      </div>
+      <div class="card">
+        <div class="card-label">過剰負荷の営業</div>
+        <div class="card-value">3<span class="unit">名</span></div>
+        <div class="card-trend trend-down">調整推奨</div>
+      </div>
+      <div class="card">
+        <div class="card-label">空きキャパのある営業</div>
+        <div class="card-value">11<span class="unit">名</span></div>
+        <div class="card-trend trend-up">追加配分可能</div>
+      </div>
+    </div>
+
+    <!-- Recommended assignments -->
+    <div class="section">
+      <div class="section-title"><span class="ai-tag">AI</span>本日の推薦アサイン (Top 5)</div>
+      <div class="section-sub">「マッチ理由」をAIが明示。マネージャ承認で即配分</div>
+      <table>
+        <thead>
+          <tr>
+            <th>案件</th>
+            <th>規模</th>
+            <th>推薦営業</th>
+            <th>マッチスコア</th>
+            <th>マッチ理由</th>
+            <th>承認</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>S社 HD / Google Cloud移行</strong></td>
+            <td>2-3億</td>
+            <td>田中PM + 山本SE</td>
+            <td><span class="score-badge score-high">94</span></td>
+            <td>製造×GCP過去実績3件 / S社案件経験 / 現稼働率62%</td>
+            <td><button class="approve-btn" onclick="approveAssignment(this)">承認</button></td>
+          </tr>
+          <tr>
+            <td><strong>M社 / gaipack導入</strong></td>
+            <td>1.5億</td>
+            <td>佐藤PM</td>
+            <td><span class="score-badge score-high">88</span></td>
+            <td>金融コンプラ知見 / gaipack立ち上げメンバー / 稼働率55%</td>
+            <td><button class="approve-btn" onclick="approveAssignment(this)">承認</button></td>
+          </tr>
+          <tr>
+            <td><strong>R社 / データ基盤</strong></td>
+            <td>1.2億</td>
+            <td>鈴木PM</td>
+            <td><span class="score-badge score-high">83</span></td>
+            <td>BigQuery設計 / 小売業界2件 / 過去R社問合せ対応経験</td>
+            <td><button class="approve-btn" onclick="approveAssignment(this)">承認</button></td>
+          </tr>
+          <tr>
+            <td><strong>L社 / AI駆動開発</strong></td>
+            <td>8000万</td>
+            <td>伊藤コンサル + 中村SE</td>
+            <td><span class="score-badge score-mid">79</span></td>
+            <td>AI駆動開発デリバリ経験 / 物流業界知見 / 中村SE稼働率42%</td>
+            <td><button class="approve-btn" onclick="approveAssignment(this)">承認</button></td>
+          </tr>
+          <tr>
+            <td><strong>U社 / クラウド設計</strong></td>
+            <td>6000万</td>
+            <td>木村SE</td>
+            <td><span class="score-badge score-mid">74</span></td>
+            <td>メディア業界経験 / 中規模案件多数 / 直近稼働低</td>
+            <td><button class="approve-btn" onclick="approveAssignment(this)">承認</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Workload distribution -->
+    <div class="section">
+      <div class="section-title"><span class="ai-tag">AI</span>営業メンバーの稼働状況</div>
+      <table>
+        <thead>
+          <tr>
+            <th>営業</th>
+            <th>役割</th>
+            <th>現在の担当</th>
+            <th>稼働率</th>
+            <th>得意領域</th>
+            <th>AIコメント</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>田中 太郎</strong></td>
+            <td>PM</td>
+            <td>4案件</td>
+            <td><div style="font-weight:700;color:#dc2626;">102%</div><div class="workload-bar"><div class="workload-fill over" style="width:100%;"></div></div></td>
+            <td>GCP / 製造</td>
+            <td>追加配分は要相談</td>
+          </tr>
+          <tr>
+            <td><strong>佐藤 花子</strong></td>
+            <td>PM</td>
+            <td>2案件</td>
+            <td><div style="font-weight:700;">55%</div><div class="workload-bar"><div class="workload-fill" style="width:55%;"></div></div></td>
+            <td>gaipack / 金融</td>
+            <td>1-2案件追加可能</td>
+          </tr>
+          <tr>
+            <td><strong>鈴木 大地</strong></td>
+            <td>PM</td>
+            <td>3案件</td>
+            <td><div style="font-weight:700;">78%</div><div class="workload-bar"><div class="workload-fill" style="width:78%;"></div></div></td>
+            <td>BigQuery / 小売</td>
+            <td>適正</td>
+          </tr>
+          <tr>
+            <td><strong>山本 健</strong></td>
+            <td>SE</td>
+            <td>3案件</td>
+            <td><div style="font-weight:700;">68%</div><div class="workload-bar"><div class="workload-fill" style="width:68%;"></div></div></td>
+            <td>GCP / マルチクラウド</td>
+            <td>1案件追加可能</td>
+          </tr>
+          <tr>
+            <td><strong>中村 美咲</strong></td>
+            <td>SE</td>
+            <td>2案件</td>
+            <td><div style="font-weight:700;">42%</div><div class="workload-bar"><div class="workload-fill" style="width:42%;"></div></div></td>
+            <td>AI駆動開発 / 物流</td>
+            <td>大型1件 or 中型2件追加可</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============================== -->
+  <!-- ④ リアルタイムレコメンド -->
+  <!-- ============================== -->
+  <section class="page" id="agent4">
+    <div class="page-header">
+      <div class="page-badge">AI AGENT #04</div>
+      <h1 class="page-title">リアルタイムレコメンド</h1>
+      <p class="page-sub">商談中、AIが会話を聞き取り、画面の横で「事例」「想定質問への回答」「次の一手」をその場で提示します</p>
+    </div>
+
+    <!-- Summary cards -->
+    <div class="summary-cards">
+      <div class="card">
+        <div class="card-label">本日のアシスト商談</div>
+        <div class="card-value">14<span class="unit">件</span></div>
+      </div>
+      <div class="card">
+        <div class="card-label">提示レコメンド数</div>
+        <div class="card-value">87<span class="unit">件</span></div>
+        <div class="card-trend trend-up">採用率 64%</div>
+      </div>
+      <div class="card">
+        <div class="card-label">「持ち帰り」削減</div>
+        <div class="card-value">-43<span class="unit">%</span></div>
+        <div class="card-trend trend-up">対前月</div>
+      </div>
+      <div class="card">
+        <div class="card-label">商談中アシスト</div>
+        <div class="card-value"><span style="color:#dc2626;font-size:14px;">●</span> LIVE<span class="unit"> 進行中3件</span></div>
+      </div>
+    </div>
+
+    <!-- Live demo -->
+    <div class="section">
+      <div class="section-title"><span class="ai-tag">LIVE</span>商談中アシスト画面 (シミュレーション)</div>
+      <div class="section-sub">対象: S社 HD様 初回商談 / 進行中: 田中PM・山本SE × CIO島田様 / 「▶ 次の発言」ボタンで商談が進みます</div>
+      <div class="chat-pane">
+        <!-- Chat main -->
+        <div class="chat-main" id="chat-main">
+          <div class="chat-row" data-step="1">
+            <div class="chat-speaker">CIO 島田様</div>
+            <div class="chat-bubble">本日はお時間いただきありがとうございます。先日のIRでもお伝えした通り、基幹システムのマルチクラウド化を検討しておりまして…</div>
+          </div>
+        </div>
+        <div class="chat-controls">
+          <button class="btn btn-primary btn-sm" id="chat-next-btn" onclick="nextChatStep()">▶ 次の発言</button>
+          <button class="btn btn-ghost btn-sm" onclick="resetChat()">⟲ 最初から</button>
+          <span style="font-size:11px;color:#94a3b8;margin-left:auto;">進行: <span id="chat-step-indicator">1</span> / 6</span>
+        </div>
+
+        <!-- AI Assist pane -->
+        <div class="assist-pane" id="assist-pane">
+          <div class="assist-title"><span class="assist-dot"></span>AI アシスタント — 商談中</div>
+          <div id="assist-content">
+            <div class="assist-block">
+              <div class="assist-label">▶ 状況把握</div>
+              <div class="assist-text">商談開始。お客様の冒頭発言を待っています。</div>
+            </div>
+            <div class="assist-block">
+              <div class="assist-label">▶ 事前準備からの引継ぎ</div>
+              <div class="assist-text">CIO島田様の関心領域: コスト最適化・運用統制<br>過去のキーワード: マルチクラウド、SAP、運用代行</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Past recommendations -->
+    <div class="section">
+      <div class="section-title"><span class="ai-tag">AI</span>本日のレコメンド採用ログ</div>
+      <table>
+        <thead>
+          <tr>
+            <th>時刻</th>
+            <th>商談</th>
+            <th>提示内容</th>
+            <th>採用</th>
+            <th>結果</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>11:15</td>
+            <td>M社</td>
+            <td>類似事例「金融K社のgaipack」を画面共有提案</td>
+            <td><span class="pill pill-green">採用</span></td>
+            <td>次回MTG確定</td>
+          </tr>
+          <tr>
+            <td>11:42</td>
+            <td>M社</td>
+            <td>「導入後の運用体制について」質問を提案</td>
+            <td><span class="pill pill-green">採用</span></td>
+            <td>キーマン特定</td>
+          </tr>
+          <tr>
+            <td>13:30</td>
+            <td>R社</td>
+            <td>「予算決裁プロセス」のヒアリング推奨</td>
+            <td><span class="pill pill-yellow">部分採用</span></td>
+            <td>引続き追跡</td>
+          </tr>
+          <tr>
+            <td>14:08</td>
+            <td>L社</td>
+            <td>競合他社の事例を伝えるタイミング指示</td>
+            <td><span class="pill pill-green">採用</span></td>
+            <td>関心度UP</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============================== -->
+  <!-- ⑤ ステークホルダー管理 -->
+  <!-- ============================== -->
+  <section class="page" id="agent5">
+    <div class="page-header">
+      <div class="page-badge">AI AGENT #05</div>
+      <h1 class="page-title">ステークホルダー管理</h1>
+      <p class="page-sub">商談データ・メール・名刺・公開情報から、お客様サイドの登場人物を自動で可視化。誰がキーマンで、今どんな温度感かを把握できます</p>
+    </div>
+
+    <!-- Summary cards -->
+    <div class="summary-cards">
+      <div class="card">
+        <div class="card-label">追跡中の関係者</div>
+        <div class="card-value">142<span class="unit">名</span></div>
+        <div class="card-trend">12社</div>
+      </div>
+      <div class="card">
+        <div class="card-label">温度感「熱」</div>
+        <div class="card-value">23<span class="unit">名</span></div>
+        <div class="card-trend trend-up">即フォロー対象</div>
+      </div>
+      <div class="card">
+        <div class="card-label">温度感「冷」</div>
+        <div class="card-value">38<span class="unit">名</span></div>
+        <div class="card-trend trend-down">再接触推奨</div>
+      </div>
+      <div class="card">
+        <div class="card-label">未接触の意思決定者</div>
+        <div class="card-value">7<span class="unit">名</span></div>
+        <div class="card-trend trend-down">アプローチ必要</div>
+      </div>
+    </div>
+
+    <!-- S社 detail -->
+    <div class="section">
+      <div class="section-title"><span class="ai-tag">AI</span>S社 HD様の組織マップ</div>
+      <div class="section-sub">商談記録 + メールやり取り + 名刺データ + LinkedIn公開情報から自動構築</div>
+
+      <div class="two-col" style="margin-top:14px;">
+        <!-- 経営層 -->
+        <div>
+          <div style="font-size:11px;color:#94a3b8;font-weight:700;letter-spacing:0.5px;margin-bottom:10px;">▶ 意思決定層</div>
+          <div class="stake-card clickable" onclick="showStakeDetail('shimada')">
+            <div class="stake-avatar warm">島田</div>
+            <div class="stake-info">
+              <div class="stake-name">島田 健一郎 様 — CIO・執行役員</div>
+              <div class="stake-role">最終決裁 / 関心: コスト最適化、運用統制</div>
+              <div class="stake-meta">
+                <span class="pill pill-orange">温度: 中</span>
+                <span class="pill pill-blue">直近接触: 5/15予定</span>
+                <span class="pill pill-gray">面談3回</span>
+              </div>
+            </div>
+          </div>
+          <div class="stake-card clickable" onclick="showStakeDetail('nakata')">
+            <div class="stake-avatar cool">中田</div>
+            <div class="stake-info">
+              <div class="stake-name">中田 雅彦 様 — CFO</div>
+              <div class="stake-role">予算承認 / 関心: ROI、3年回収</div>
+              <div class="stake-meta">
+                <span class="pill pill-gray">温度: 低</span>
+                <span class="pill pill-red">未接触</span>
+                <span class="pill pill-yellow">★ 要アプローチ</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- 現場 -->
+        <div>
+          <div style="font-size:11px;color:#94a3b8;font-weight:700;letter-spacing:0.5px;margin-bottom:10px;">▶ 現場・推進層</div>
+          <div class="stake-card clickable" onclick="showStakeDetail('komatsu')">
+            <div class="stake-avatar">小松</div>
+            <div class="stake-info">
+              <div class="stake-name">小松 隆 様 — 情報システム部 部長</div>
+              <div class="stake-role">現場推進 / 関心: 既存資産活用、人材育成</div>
+              <div class="stake-meta">
+                <span class="pill pill-green">温度: 高</span>
+                <span class="pill pill-blue">直近接触: 5/8</span>
+                <span class="pill pill-gray">面談5回</span>
+              </div>
+            </div>
+          </div>
+          <div class="stake-card clickable" onclick="showStakeDetail('watanabe')">
+            <div class="stake-avatar">渡辺</div>
+            <div class="stake-info">
+              <div class="stake-name">渡辺 翔 様 — 情報システム部 課長</div>
+              <div class="stake-role">技術検証 / 関心: 移行手法、SAP連携</div>
+              <div class="stake-meta">
+                <span class="pill pill-green">温度: 高</span>
+                <span class="pill pill-blue">直近接触: 5/10</span>
+                <span class="pill pill-gray">面談2回</span>
+              </div>
+            </div>
+          </div>
+          <div class="stake-card clickable" onclick="showStakeDetail('matsui')">
+            <div class="stake-avatar cool">松井</div>
+            <div class="stake-info">
+              <div class="stake-name">松井 真理 様 — DX推進室</div>
+              <div class="stake-role">影響者 / 関心: 全社AI活用、変革ストーリー</div>
+              <div class="stake-meta">
+                <span class="pill pill-gray">温度: 低</span>
+                <span class="pill pill-red">最終接触: 1月</span>
+                <span class="pill pill-yellow">再接触推奨</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AI insight -->
+    <div class="section">
+      <div class="section-title"><span class="ai-tag">AI</span>本日のアラート</div>
+      <div class="ai-insight">
+        <div class="ai-insight-icon">!</div>
+        <div class="ai-insight-text"><strong>CFO中田様への未接触</strong> が決裁プロセスのボトルネックになる可能性。小松様(現場部長、温度高)経由で紹介依頼の打診を推奨。</div>
+      </div>
+      <div class="ai-insight">
+        <div class="ai-insight-icon">i</div>
+        <div class="ai-insight-text"><strong>渡辺様(技術検証担当)</strong> が直近2週間、弊社のGCP事例ページに4回アクセス。技術的な仕様確認の段階に入っている可能性大。</div>
+      </div>
+      <div class="ai-insight">
+        <div class="ai-insight-icon">i</div>
+        <div class="ai-insight-text"><strong>松井様(DX推進室)</strong> が最終接触から4ヶ月。LinkedInで「生成AI」関連投稿が増えており、再接触の好機。</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================== -->
+  <!-- ⑥ ナーチャリング自動化 -->
+  <!-- ============================== -->
+  <section class="page" id="agent6">
+    <div class="page-header">
+      <div class="page-badge">AI AGENT #06</div>
+      <h1 class="page-title">ナーチャリング自動化</h1>
+      <p class="page-sub">眠っているリードをAIが温度別に分類、各リードに合った接触メッセージを生成・配信。死にリストから受注を発掘します</p>
+    </div>
+
+    <!-- Summary cards -->
+    <div class="summary-cards">
+      <div class="card">
+        <div class="card-label">追跡中リード</div>
+        <div class="card-value">4,128<span class="unit">件</span></div>
+        <div class="card-trend">12イベント分</div>
+      </div>
+      <div class="card">
+        <div class="card-label">今月の自動接触</div>
+        <div class="card-value">1,247<span class="unit">件</span></div>
+        <div class="card-trend trend-up">開封率 38%</div>
+      </div>
+      <div class="card">
+        <div class="card-label">反応リード (商談化候補)</div>
+        <div class="card-value">52<span class="unit">件</span></div>
+        <div class="card-trend trend-up">過去90日</div>
+      </div>
+      <div class="card">
+        <div class="card-label">死にリスト→商談化率</div>
+        <div class="card-value">3.1<span class="unit">%</span></div>
+        <div class="card-trend trend-up">過去: 0.5%</div>
+      </div>
+    </div>
+
+    <!-- Lead temperature -->
+    <div class="section">
+      <div class="section-title"><span class="ai-tag">AI</span>リード温度別の分布</div>
+      <div class="section-sub">過去の反応・接触履歴・お客様の動きから、AIが温度感を判定</div>
+
+      <div class="temp-row">
+        <div class="temp-label">🔥 熱</div>
+        <div class="temp-bar"><div class="temp-fill temp-hot" style="width:8%;">8%</div></div>
+        <div class="temp-count">332件</div>
+        <div class="temp-rate">商談化候補</div>
+      </div>
+      <div class="temp-row">
+        <div class="temp-label">☀️ 温</div>
+        <div class="temp-bar"><div class="temp-fill temp-warm" style="width:24%;">24%</div></div>
+        <div class="temp-count">991件</div>
+        <div class="temp-rate">継続接触中</div>
+      </div>
+      <div class="temp-row">
+        <div class="temp-label">❄️ 冷</div>
+        <div class="temp-bar"><div class="temp-fill temp-cool" style="width:68%;">68%</div></div>
+        <div class="temp-count">2,805件</div>
+        <div class="temp-rate">掘起こし対象</div>
+      </div>
+    </div>
+
+    <!-- AI generated email -->
+    <div class="section">
+      <div class="section-title"><span class="ai-tag">AI</span>本日配信予定のメール (一部抜粋)</div>
+      <div class="section-sub">リードごとに「最新の動き × 関心領域 × 過去接触」を踏まえてAIが個別生成。承認後配信</div>
+      <div class="two-col" id="email-list">
+        <div class="email-card" data-email-id="1">
+          <div class="email-meta">宛先: T社 製造部 田中様 / リード源: 2025/10 Cloud Summit / 温度: 温</div>
+          <div class="email-subject">先日のIR発表 (海外DC増強) を拝見しまして、改めてご挨拶を</div>
+          <div class="email-body-wrap">
+            <div class="email-body">田中様
+
+ご無沙汰しております、KDDIアイレットの○○です。
+
+先日のIR発表で海外データセンター3拠点増強の方針を拝見し、以前Cloud Summitで「海外展開のクラウド設計が悩み」とおっしゃっていたのを思い出し、ご連絡差し上げました。
+
+弊社で類似規模の海外DC展開を支援した事例 (3拠点・1年・運用継承込み) がございまして、もしご興味ありましたら15分程度お時間いただけませんでしょうか?
+
+—— 田中様の関心領域(海外展開)に直接刺さる内容</div>
+          </div>
+          <div class="email-actions">
+            <button class="btn btn-primary btn-sm" onclick="approveEmail(this)">✓ 承認・配信</button>
+            <button class="btn btn-outline btn-sm" onclick="editEmail(this)">✎ 編集</button>
+            <button class="btn btn-ghost btn-sm" onclick="rejectEmail(this)">✕ 配信停止</button>
+          </div>
+        </div>
+        <div class="email-card" data-email-id="2">
+          <div class="email-meta">宛先: F社 DX推進 山下様 / リード源: 2025/3 弊社セミナー / 温度: 冷</div>
+          <div class="email-subject">F社様のAI活用方針を拝見し、Google Cloud Next の招待のご案内</div>
+          <div class="email-body-wrap">
+            <div class="email-body">山下様
+
+KDDIアイレットの△△と申します。
+2025年3月の弊社セミナーにご参加いただきましてありがとうございました。
+
+直近、F社様が「AIエージェント全社展開」を発表されたとの記事を拝見しました。
+本件、Google Cloud Next 2026 (6/18) でも関連セッションが多数ありまして、もしご都合よろしければ弊社枠でご招待差し上げたく、ご検討いただけませんでしょうか?
+
+—— 6/18のイベント機会と紐付け、再起トリガーとして</div>
+          </div>
+          <div class="email-actions">
+            <button class="btn btn-primary btn-sm" onclick="approveEmail(this)">✓ 承認・配信</button>
+            <button class="btn btn-outline btn-sm" onclick="editEmail(this)">✎ 編集</button>
+            <button class="btn btn-ghost btn-sm" onclick="rejectEmail(this)">✕ 配信停止</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Funnel -->
+    <div class="section">
+      <div class="section-title"><span class="ai-tag">AI</span>過去90日のナーチャリング成果</div>
+      <table>
+        <thead>
+          <tr>
+            <th>ステップ</th>
+            <th>件数</th>
+            <th>転換率</th>
+            <th>過去 (AIなし)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>配信</td>
+            <td><strong>3,742</strong></td>
+            <td>—</td>
+            <td>—</td>
+          </tr>
+          <tr>
+            <td>開封</td>
+            <td><strong>1,421</strong></td>
+            <td>38.0%</td>
+            <td>22% (+16pt)</td>
+          </tr>
+          <tr>
+            <td>反応 (返信・クリック)</td>
+            <td><strong>184</strong></td>
+            <td>12.9%</td>
+            <td>4.5% (+8pt)</td>
+          </tr>
+          <tr>
+            <td>商談化</td>
+            <td><strong>52</strong></td>
+            <td>28.3%</td>
+            <td>11% (+17pt)</td>
+          </tr>
+          <tr>
+            <td>受注 (見込み)</td>
+            <td><strong>14</strong></td>
+            <td>26.9%</td>
+            <td>—</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+</main>
+
+<!-- Detail Panel + Overlay -->
+<div class="overlay" id="overlay" onclick="closeDetail()"></div>
+<aside class="detail-panel" id="detail-panel">
+  <div class="detail-header">
+    <div>
+      <div class="detail-header-title" id="detail-title">タイトル</div>
+      <div class="detail-header-sub" id="detail-sub">サブタイトル</div>
+    </div>
+    <button class="detail-close" onclick="closeDetail()">✕</button>
+  </div>
+  <div class="detail-body" id="detail-body">
+    <!-- content injected by JS -->
+  </div>
+</aside>
+
+<!-- Toast -->
+<div class="toast" id="toast">通知</div>
+
+<script>
+  // ===== Sidebar Navigation =====
+  function show(id) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    document.querySelectorAll('.sidebar-nav li').forEach(li => li.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+    window.scrollTo(0, 0);
+  }
+
+  // ===== Toast =====
+  function showToast(msg, type) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast show' + (type ? ' ' + type : '');
+    setTimeout(() => t.classList.remove('show'), 2400);
+  }
+
+  // ===== Detail Panel =====
+  function openDetail(title, sub, html) {
+    document.getElementById('detail-title').textContent = title;
+    document.getElementById('detail-sub').textContent = sub;
+    document.getElementById('detail-body').innerHTML = html;
+    document.getElementById('overlay').classList.add('active');
+    document.getElementById('detail-panel').classList.add('active');
+  }
+  function closeDetail() {
+    document.getElementById('overlay').classList.remove('active');
+    document.getElementById('detail-panel').classList.remove('active');
+  }
+
+  // ===== Agent 1: Company detail =====
+  const COMPANIES = {
+    's-hd': {
+      name: 'S社 HD',
+      sub: '製造業 / Google Cloud移行 (推定 2-3億) / マッチスコア: 92',
+      stats: [
+        {l:'マッチスコア',v:'92'},
+        {l:'想定規模',v:'2-3億'},
+        {l:'業界実績',v:'12件'},
+      ],
+      timeline: [
+        {d:'2026/4/22',t:'IR: 2027年度までに基幹システムをマルチクラウド化と発表'},
+        {d:'2026/4/15',t:'CIO 島田氏が中期計画でGoogle Cloud追加検討に言及'},
+        {d:'2026/3',t:'同業A社のAWS→GCP移行完了 (弊社支援案件)'},
+        {d:'2024/11',t:'別部門でクラウド検討の問合せ (失注: 価格面)'},
+      ],
+      reasons: [
+        '✓ IRで移行検討を公表 (2026/4/22)',
+        '✓ 弊社 Google Cloud Partner Award 受賞 (2025)',
+        '✓ 製造業の同規模案件 12件の実装パターン蓄積',
+        '✓ 同業A社の事例を担当した田中PMが在籍',
+        '⚠ CFO中田氏とは未接触 (ステークホルダー#5)',
+      ],
+      action: '田中PM・山本SEを48時間以内にアサイン、5/15 14:00の初回商談に向けて事前準備エージェント②を起動推奨',
+    },
+    'm': {
+      name: 'M社',
+      sub: '金融 / gaipack導入 (推定 1.5億) / マッチスコア: 87',
+      stats: [{l:'マッチスコア',v:'87'},{l:'想定規模',v:'1.5億'},{l:'業界実績',v:'8件'}],
+      timeline: [
+        {d:'2026/5/8',t:'担当窓口から「AI導入を本格検討」と打診'},
+        {d:'2026/4',t:'Q4予算消化期に入る'},
+        {d:'2026/2',t:'金融K社のgaipack事例で類似議論'},
+      ],
+      reasons: ['✓ Q4予算消化期','✓ 金融コンプラ知見豊富','✓ gaipack類似事例 3件','⚠ NDA体制の事前整備が必要'],
+      action: '佐藤PMアサイン、コンプライアンス資料を先出し',
+    },
+    'r': {name:'R社',sub:'小売 / データ基盤再構築 / マッチスコア: 85',stats:[{l:'スコア',v:'85'},{l:'規模',v:'1.2億'},{l:'業界',v:'小売'}],timeline:[{d:'2026/4',t:'BigQuery PoC問合せ'}],reasons:['✓ BigQuery実績','✓ 過去失注のリベンジ機会'],action:'鈴木PMで2週間以内に提案訪問'},
+    'l': {name:'L社',sub:'物流 / AI駆動開発 / マッチスコア: 82',stats:[{l:'スコア',v:'82'},{l:'規模',v:'8000万'},{l:'業界',v:'物流'}],timeline:[{d:'2026/5',t:'新規DX部署立ち上げ'}],reasons:['✓ DX部署立ち上げ直後','✓ 弊社AI駆動開発の認知あり'],action:'伊藤コンサル + 中村SEを推薦'},
+    'u': {name:'U社',sub:'メディア / クラウド設計支援 / マッチスコア: 76',stats:[{l:'スコア',v:'76'},{l:'規模',v:'6000万'},{l:'業界',v:'メディア'}],timeline:[{d:'2026/3',t:'過去問合せあり (放置中)'}],reasons:['✓ 過去問合せ履歴あり','✓ Web露出増加'],action:'木村SEから再アプローチ'},
+    'n': {name:'N社 グループ',sub:'製造 / ERPコンサル / マッチスコア: 72',stats:[{l:'スコア',v:'72'},{l:'規模',v:'1.8億'},{l:'業界',v:'製造'}],timeline:[{d:'2026/4',t:'決算で利益率改善宣言'}],reasons:['✓ 決算で改善宣言','✓ 競合の値上げ動向'],action:'田中PMの空き次第で打診'},
+    'p': {name:'P社',sub:'製薬 / データレイク / マッチスコア: 68',stats:[{l:'スコア',v:'68'},{l:'規模',v:'9000万'},{l:'業界',v:'製薬'}],timeline:[{d:'2026/3',t:'規制対応の動き加速'}],reasons:['✓ 規制対応','✓ Google Cloud志向'],action:'山本SE + 高橋コンサル、業界知見の補強が必要'},
+    'f': {name:'F社',sub:'小売 / AIエージェント検討 / マッチスコア: 65',stats:[{l:'スコア',v:'65'},{l:'規模',v:'5000万'},{l:'業界',v:'小売'}],timeline:[{d:'継続',t:'業界の早期検討組に位置'}],reasons:['✓ 業界の早期検討組','✓ 弊社事例ニーズ高'],action:'監視継続、半年以内に動きあれば伊藤コンサルへ'},
+  };
+  function showCompanyDetail(id) {
+    const c = COMPANIES[id];
+    if (!c) return;
+    const html = `
+      <div class="detail-stats">
+        ${c.stats.map(s => `<div class="detail-stat"><div class="detail-stat-label">${s.l}</div><div class="detail-stat-value">${s.v}</div></div>`).join('')}
+      </div>
+      <div class="detail-block">
+        <div class="detail-block-title">マッチ理由 (AI抽出)</div>
+        <div style="font-size:13px;color:#334155;line-height:1.9;">${c.reasons.map(r=>`<div>${r}</div>`).join('')}</div>
+      </div>
+      <div class="detail-block">
+        <div class="detail-block-title">直近の動き / 過去の接点</div>
+        <div class="detail-timeline">
+          ${c.timeline.map(t=>`<div class="detail-timeline-item"><div class="detail-timeline-date">${t.d}</div><div class="detail-timeline-text">${t.t}</div></div>`).join('')}
+        </div>
+      </div>
+      <div class="detail-block">
+        <div class="detail-block-title">推奨アクション</div>
+        <div class="ai-insight"><div class="ai-insight-icon">▶</div><div class="ai-insight-text">${c.action}</div></div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-primary" onclick="showToast('事前準備エージェントを起動しました', 'success');closeDetail();">▶ 事前準備エージェント②を起動</button>
+        <button class="btn btn-outline" onclick="showToast('割り振り承認しました', 'success');closeDetail();">✓ アサインを承認</button>
+      </div>`;
+    openDetail(c.name, c.sub, html);
+  }
+
+  // ===== Agent 1: Filter =====
+  function filterAgent1(tier) {
+    document.querySelectorAll('#agent1-table tbody tr').forEach(tr => {
+      if (tier === 'all' || tr.dataset.tier === tier) tr.style.display = '';
+      else tr.style.display = 'none';
+    });
+  }
+  document.getElementById('agent1-search').addEventListener('input', e => {
+    const q = e.target.value.toLowerCase();
+    document.querySelectorAll('#agent1-table tbody tr').forEach(tr => {
+      tr.style.display = tr.textContent.toLowerCase().includes(q) ? '' : 'none';
+    });
+  });
+
+  // ===== Agent 2: Generate =====
+  function generateAgent2() {
+    const btn = document.getElementById('agent2-generate');
+    btn.disabled = true;
+    btn.textContent = '⏳ 生成中...';
+    document.getElementById('agent2-results').classList.add('hidden');
+    document.getElementById('agent2-doc').classList.add('hidden');
+    document.getElementById('agent2-loading').classList.remove('hidden');
+
+    const steps = [
+      {t:'AIが業績資料を読み込み中...', s:'直近のIR・決算短信を分析しています'},
+      {t:'公開情報を横断検索中...', s:'プレスリリース・ニュース記事をスキャン中'},
+      {t:'過去の商談データを参照中...', s:'関連する過去案件・失注分析を抽出'},
+      {t:'仮説を生成中...', s:'AIが3案の仮説を生成しています'},
+      {t:'質問リストを最適化中...', s:'担当営業の経験パターンに合わせて並べ替え'},
+    ];
+    let idx = 0;
+    const interval = setInterval(() => {
+      if (idx < steps.length) {
+        document.getElementById('agent2-loading-text').textContent = steps[idx].t;
+        document.getElementById('agent2-loading-sub').textContent = steps[idx].s;
+        idx++;
+      } else {
+        clearInterval(interval);
+        document.getElementById('agent2-loading').classList.add('hidden');
+        document.getElementById('agent2-results').classList.remove('hidden');
+        document.getElementById('agent2-results').classList.add('fade-in');
+        document.getElementById('agent2-doc').classList.remove('hidden');
+        document.getElementById('agent2-doc').classList.add('fade-in');
+        btn.disabled = false;
+        btn.textContent = '▶ 別の企業で再実行';
+        showToast('準備シートが完成しました', 'success');
+      }
+    }, 700);
+  }
+
+  // ===== Agent 3: Approve =====
+  function approveAssignment(btn) {
+    const tr = btn.closest('tr');
+    tr.classList.add('approved-row');
+    btn.outerHTML = '<span class="pill pill-green">✓ 承認済</span>';
+    showToast('アサインを承認しました', 'success');
+  }
+
+  // ===== Agent 4: Chat simulation =====
+  const CHAT_STEPS = [
+    { side:'them', name:'CIO 島田様', msg:'既にAWSで一部システムを動かしているのですが、Google Cloudへの移行で何がどれくらい変わるのか、正直まだ見えていなくて。同業のA社さんが移行されたとは聞いているのですが…',
+      assist: [
+        {l:'関連する弊社事例', t:'同業A社のAWS→GCP移行 (担当: 田中PM 自身)<div class="assist-quote">"運用コスト32%削減、移行中の業務影響なし。並行運用で2段階移行を採用"</div>'},
+        {l:'次の一手', t:'A社事例の数字を一度提示 → 不安を具体化させる質問を返す。<br>(例:「移行で一番怖いと思われている部分はどこですか?」)'},
+        {l:'想定される次の質問', t:'・移行期間はどのくらい?<br>・うちのSAPはそのまま動く?<br>・失敗リスクは?'},
+      ]},
+    { side:'you', name:'田中PM', msg:'ありがとうございます。同業A社様の事例はちょうど弊社で支援させていただいたものでして、コストと運用負荷の両面で改善があった話を共有させていただけたらと思います',
+      assist: [
+        {l:'採用したAI推薦', t:'✓ 事例から入る + 質問で不安の中身を引き出す → 推薦どおりの応答'},
+        {l:'次に必要な情報', t:'移行コストの実数値(A社事例)が直後に欲しい — 画面共有でcase studyを表示推奨'},
+      ]},
+    { side:'them', name:'CIO 島田様', msg:'なるほど、コスト面はどのくらい変わるんでしょうか? あと、移行中のシステム停止リスクもちょっと心配で…',
+      assist: [
+        {l:'2つの質問を同時に', t:'コスト面 + 停止リスク。両方に答える順序を提案'},
+        {l:'推奨応答の構造', t:'1. A社事例の数値(32%削減)<br>2. 段階移行で停止ゼロ実現の手法<br>3. 不安の深堀り質問'},
+        {l:'★ 注意', t:'<span style="color:#dc2626;">島田様は前職でガバナンス系発表多数。「統制」のキーワード出てきたら、運用代行メニュー資料を画面共有推奨</span>'},
+      ]},
+    { side:'you', name:'田中PM', msg:'A社様の場合、運用コストで32%削減が実績値です。移行中の停止リスクについては「並行運用」という方式で、移行期間中も既存システムが稼働した状態を保てます。御社で一番停止できない時間帯はどこになりますか?',
+      assist: [
+        {l:'採用したAI推薦', t:'✓ 数値 + 解決策 + 深堀り質問 — 推薦どおりの3段構成'},
+        {l:'次の質問予測', t:'停止できない時間帯の話 → そこからSAPの動作確認・繁忙期の話題に展開可能性高'},
+      ]},
+    { side:'them', name:'CIO 島田様', msg:'月末月初の経理締めの時期は絶対止められません。あと、移行後の運用体制についても気になっていて、内製でやるのか、外注するのか…',
+      assist: [
+        {l:'★ キーワード検知', t:'<span style="color:#2563eb;font-weight:600;">「運用体制」が出ました。事前準備の注意事項どおり。</span>'},
+        {l:'推奨アクション', t:'運用代行メニュー資料を画面共有 → 「内製+伴走」のハイブリッド案を提示'},
+        {l:'資料リンク', t:'<div class="assist-quote">📄 運用代行サービス案内.pdf — 共有準備完了</div>'},
+      ]},
+    { side:'you', name:'田中PM', msg:'運用についてはまさに弊社の強みでして、いま画面で共有させていただけますか? 内製と弊社運用代行を組み合わせた「ハイブリッド型」の事例もご紹介できますので…',
+      assist: [
+        {l:'採用したAI推薦', t:'✓ 運用代行資料の画面共有、ハイブリッド型ストーリー — 推薦どおり'},
+        {l:'本日のゴール達成度', t:'<strong>78%</strong> — キーマン(島田CIO)の関心領域3点をカバー済み'},
+        {l:'次回への布石', t:'・CFO中田氏(未接触)への接続を依頼<br>・運用代行のPoC提案を6月中旬に'},
+      ]},
+  ];
+  let chatStep = 0;
+  function renderAssist(assist) {
+    return assist.map(a => `<div class="assist-block"><div class="assist-label">▶ ${a.l}</div><div class="assist-text">${a.t}</div></div>`).join('');
+  }
+  function nextChatStep() {
+    if (chatStep >= CHAT_STEPS.length) {
+      showToast('商談シミュレーション完了', 'success');
+      return;
+    }
+    const step = CHAT_STEPS[chatStep];
+    const main = document.getElementById('chat-main');
+    const row = document.createElement('div');
+    row.className = 'chat-row fade-in';
+    row.innerHTML = `<div class="chat-speaker">${step.name}</div><div class="chat-bubble ${step.side === 'you' ? 'you' : ''}">${step.msg}</div>`;
+    main.appendChild(row);
+    main.scrollTop = main.scrollHeight;
+    // Update assist pane
+    const assistTitle = '<div class="assist-title"><span class="assist-dot"></span>AI アシスタント — 商談中</div>';
+    document.getElementById('assist-pane').innerHTML = assistTitle + '<div id="assist-content" class="fade-in">' + renderAssist(step.assist) + '</div>';
+    chatStep++;
+    document.getElementById('chat-step-indicator').textContent = Math.min(chatStep + 1, CHAT_STEPS.length + 1);
+    if (chatStep >= CHAT_STEPS.length) {
+      document.getElementById('chat-next-btn').disabled = true;
+      document.getElementById('chat-next-btn').textContent = '✓ 完了';
+    }
+  }
+  function resetChat() {
+    chatStep = 0;
+    document.getElementById('chat-main').innerHTML = `<div class="chat-row" data-step="1"><div class="chat-speaker">CIO 島田様</div><div class="chat-bubble">本日はお時間いただきありがとうございます。先日のIRでもお伝えした通り、基幹システムのマルチクラウド化を検討しておりまして…</div></div>`;
+    document.getElementById('chat-next-btn').disabled = false;
+    document.getElementById('chat-next-btn').textContent = '▶ 次の発言';
+    document.getElementById('chat-step-indicator').textContent = '1';
+    document.getElementById('assist-pane').innerHTML = `<div class="assist-title"><span class="assist-dot"></span>AI アシスタント — 商談中</div><div id="assist-content"><div class="assist-block"><div class="assist-label">▶ 状況把握</div><div class="assist-text">商談開始。お客様の冒頭発言を待っています。</div></div><div class="assist-block"><div class="assist-label">▶ 事前準備からの引継ぎ</div><div class="assist-text">CIO島田様の関心領域: コスト最適化・運用統制<br>過去のキーワード: マルチクラウド、SAP、運用代行</div></div></div>`;
+  }
+
+  // ===== Agent 5: Stakeholder detail =====
+  const STAKES = {
+    'shimada': {
+      name:'島田 健一郎 様',
+      sub:'CIO・執行役員 / S社 HD',
+      stats:[{l:'温度',v:'中'},{l:'面談数',v:'3回'},{l:'最終接触',v:'5/15予定'}],
+      role:'本案件の最終決裁者',
+      interests:['コスト最適化', '運用統制・ガバナンス', 'マルチクラウド'],
+      history:[
+        {d:'2026/5/15',t:'初回商談予定 (田中PM・山本SE)'},
+        {d:'2026/5/8',t:'メール返信「移行検討中、詳細は次回」'},
+        {d:'2026/4/22',t:'IR発表で「マルチクラウド化」言及'},
+        {d:'2026/3',t:'紹介経由で名刺交換'},
+      ],
+      next:'5/15商談でA社事例(GCP移行)を画面共有、運用代行メニューを準備',
+    },
+    'nakata': {
+      name:'中田 雅彦 様',
+      sub:'CFO / S社 HD',
+      stats:[{l:'温度',v:'低'},{l:'面談数',v:'0回'},{l:'最終接触',v:'未'}],
+      role:'予算承認・財務責任者',
+      interests:['ROI・3年回収', '財務影響'],
+      history:[{d:'-',t:'まだ接触なし'}],
+      next:'★ 小松様(現場部長、温度高)経由で紹介依頼の打診を推奨。決裁プロセスのボトルネック化リスクあり。',
+    },
+    'komatsu': {
+      name:'小松 隆 様',
+      sub:'情報システム部 部長 / S社 HD',
+      stats:[{l:'温度',v:'高'},{l:'面談数',v:'5回'},{l:'最終接触',v:'5/8'}],
+      role:'現場推進のキーマン',
+      interests:['既存資産活用', '人材育成', '社内政治'],
+      history:[
+        {d:'2026/5/8',t:'弊社オフィスでランチ MTG、移行への前向きな発言'},
+        {d:'2026/4/24',t:'技術勉強会で交流'},
+        {d:'2026/3',t:'初回商談から継続フォロー中'},
+      ],
+      next:'CFO中田氏への紹介を打診、5/15商談での社内立ち回りもご相談',
+    },
+    'watanabe': {
+      name:'渡辺 翔 様',
+      sub:'情報システム部 課長 / S社 HD',
+      stats:[{l:'温度',v:'高'},{l:'面談数',v:'2回'},{l:'最終接触',v:'5/10'}],
+      role:'技術検証担当・実装イメージ確認',
+      interests:['移行手法', 'SAP連携', '具体的な技術仕様'],
+      history:[
+        {d:'2026/5/13',t:'弊社GCP事例ページに4回アクセス'},
+        {d:'2026/5/10',t:'技術仕様の問合せメール'},
+        {d:'2026/4',t:'勉強会経由で名刺交換'},
+      ],
+      next:'5/15商談前に詳細技術資料を別途送付、技術質問への深掘り準備',
+    },
+    'matsui': {
+      name:'松井 真理 様',
+      sub:'DX推進室 / S社 HD',
+      stats:[{l:'温度',v:'低'},{l:'面談数',v:'1回'},{l:'最終接触',v:'1月'}],
+      role:'影響者・社内変革ストーリーの担い手',
+      interests:['全社AI活用', '変革ストーリー', '生成AI'],
+      history:[
+        {d:'2026/5',t:'LinkedInで「生成AI」関連投稿が増加'},
+        {d:'2026/1',t:'最後の接触 (展示会で短時間)'},
+      ],
+      next:'最終接触から4ヶ月、LinkedIn上で「生成AI」関連発信が増加。AIエージェント構想のホワイトペーパー送付で再接触の好機',
+    },
+  };
+  function showStakeDetail(id) {
+    const s = STAKES[id];
+    if (!s) return;
+    const html = `
+      <div class="detail-stats">
+        ${s.stats.map(x => `<div class="detail-stat"><div class="detail-stat-label">${x.l}</div><div class="detail-stat-value">${x.v}</div></div>`).join('')}
+      </div>
+      <div class="detail-block">
+        <div class="detail-block-title">役割・関心領域</div>
+        <div style="font-size:13px;color:#334155;line-height:1.8;"><strong>${s.role}</strong><div style="margin-top:6px;">${s.interests.map(i=>`<span class="pill pill-blue" style="margin-right:4px;">${i}</span>`).join('')}</div></div>
+      </div>
+      <div class="detail-block">
+        <div class="detail-block-title">接触履歴</div>
+        <div class="detail-timeline">
+          ${s.history.map(h=>`<div class="detail-timeline-item"><div class="detail-timeline-date">${h.d}</div><div class="detail-timeline-text">${h.t}</div></div>`).join('')}
+        </div>
+      </div>
+      <div class="detail-block">
+        <div class="detail-block-title">次に取るべき行動</div>
+        <div class="ai-insight"><div class="ai-insight-icon">▶</div><div class="ai-insight-text">${s.next}</div></div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn btn-primary" onclick="showToast('再接触メッセージを生成しました', 'success');closeDetail();">▶ 再接触メッセージを生成</button>
+        <button class="btn btn-outline" onclick="showToast('カレンダー連携で日程提案を送信しました', 'success');closeDetail();">📅 日程提案を送信</button>
+      </div>`;
+    openDetail(s.name, s.sub, html);
+  }
+
+  // ===== Agent 6: Email actions =====
+  function approveEmail(btn) {
+    const card = btn.closest('.email-card');
+    card.classList.add('approved');
+    card.querySelector('.email-actions').style.display = 'none';
+    showToast('配信予約しました', 'success');
+  }
+  function rejectEmail(btn) {
+    const card = btn.closest('.email-card');
+    card.classList.add('rejected');
+    card.querySelector('.email-actions').style.display = 'none';
+    showToast('このメールを配信停止しました');
+  }
+  function editEmail(btn) {
+    const card = btn.closest('.email-card');
+    const wrap = card.querySelector('.email-body-wrap');
+    if (card.classList.contains('editing')) {
+      // Save
+      const ta = wrap.querySelector('textarea');
+      const newText = ta.value;
+      wrap.innerHTML = `<div class="email-body">${newText.replace(/\n/g,'<br>')}</div>`;
+      card.classList.remove('editing');
+      btn.textContent = '✎ 編集';
+      showToast('編集を保存しました', 'success');
+    } else {
+      const orig = wrap.querySelector('.email-body').textContent;
+      wrap.innerHTML = `<textarea>${orig}</textarea>`;
+      card.classList.add('editing');
+      btn.textContent = '💾 保存';
+    }
+  }
+</script>
+
+</body>
+</html>
